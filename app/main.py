@@ -9,13 +9,16 @@ from app.middleware.auth import AuthMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.routers import agents, pages, seals, webhooks
 from app.models import Agent, ApiKey, Seal, AgentSeal, Payment, InviteCode  # noqa: F401
+from app.config import settings
 
 app = FastAPI(title="AgentSeal API", version="0.1.0")
 
+cors_origins = [origin.strip() for origin in settings.cors_allow_origins.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=settings.cors_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     app_secret_key: str
     environment: str = "production"
 
+    # CORS
+    cors_allow_origins: str = "https://agentseal.io"
+    cors_allow_credentials: bool = False
+
     # Rate limiting
     rate_limit_register: str = "10/hour"
     rate_limit_api: str = "60/minute"
