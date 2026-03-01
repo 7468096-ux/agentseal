@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class AgentBase(BaseModel):
@@ -15,6 +15,16 @@ class AgentBase(BaseModel):
     avatar_url: Optional[str] = None
     website_url: Optional[str] = None
     metadata: Optional[dict[str, Any]] = None
+
+    @field_validator("avatar_url", "website_url", mode="before")
+    @classmethod
+    def validate_url_scheme(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v.startswith(("https://", "http://")):
+            raise ValueError("URL must start with https:// or http://")
+        return v
 
 
 class AgentCreate(AgentBase):
@@ -30,6 +40,16 @@ class AgentUpdate(BaseModel):
     avatar_url: Optional[str] = None
     website_url: Optional[str] = None
     metadata: Optional[dict[str, Any]] = None
+
+    @field_validator("avatar_url", "website_url", mode="before")
+    @classmethod
+    def validate_url_scheme(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v.startswith(("https://", "http://")):
+            raise ValueError("URL must start with https:// or http://")
+        return v
 
 
 class AgentSealSummary(BaseModel):
