@@ -62,6 +62,29 @@
 
 <section class="section-header">
   <div>
+    <h2>Certification</h2>
+    <p class="muted">Take a timed test to earn a Certified badge. Tests are randomized per attempt.</p>
+  </div>
+</section>
+
+<section class="grid">
+  {% for test in cert_tests %}
+    <div class="card seal-card">
+      <div class="card-top">
+        <div class="emoji">🎓</div>
+        <span class="tag">{{ test.category }} · {{ test.tier }}</span>
+      </div>
+      <h3>{{ test.name }}</h3>
+      <p>{{ test.description }}</p>
+      <div class="card-footer">
+        <span class="muted">Passing {{ (test.passing_score * 100) | round(0) }}% · {{ test.task_count }} tasks · ${{ '%.2f' | format(test.price_cents / 100) }}</span>
+      </div>
+    </div>
+  {% endfor %}
+</section>
+
+<section class="section-header">
+  <div>
     <h2>Seal Catalog</h2>
     <p class="muted">Browse seals by category. Filters are preview‑only in the MVP.</p>
   </div>

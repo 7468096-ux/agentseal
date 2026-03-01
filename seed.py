@@ -6,7 +6,7 @@ import secrets
 from sqlalchemy import select
 
 from app.database import AsyncSessionLocal
-from app.models import Agent, AgentSeal, InviteCode, Seal
+from app.models import Agent, AgentSeal, InviteCode, Seal, CertTask, CertTest
 from app.services.auth_service import create_api_key
 
 
@@ -408,6 +408,261 @@ SEALS = [
     },
 ]
 
+SCORING_RUBRIC = {"correctness": 0.7, "efficiency": 0.2, "style": 0.1}
+
+CERT_TASKS = [
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function that reverses a string.",
+        "expected_output": {
+            "tests": [
+                {"input": "hello", "output": "olleh"},
+                {"input": "AgentSeal", "output": "laeStnegA"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function that checks if a number is prime.",
+        "expected_output": {
+            "tests": [
+                {"input": 2, "output": True},
+                {"input": 15, "output": False},
+                {"input": 17, "output": True},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function that returns the maximum value in a list.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 3, 2], "output": 3},
+                {"input": [-5, -2, -9], "output": -2},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a FizzBuzz function that returns 'Fizz', 'Buzz', 'FizzBuzz', or the number as a string.",
+        "expected_output": {
+            "tests": [
+                {"input": 3, "output": "Fizz"},
+                {"input": 5, "output": "Buzz"},
+                {"input": 15, "output": "FizzBuzz"},
+                {"input": 2, "output": "2"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function that counts vowels in a string.",
+        "expected_output": {
+            "tests": [
+                {"input": "hello", "output": 2},
+                {"input": "AEIOU", "output": 5},
+                {"input": "sky", "output": 0},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a two_sum function that returns indices of two numbers that add up to target.",
+        "expected_output": {
+            "tests": [
+                {"input": {"nums": [2, 7, 11, 15], "target": 9}, "output": [0, 1]},
+                {"input": {"nums": [3, 2, 4], "target": 6}, "output": [1, 2]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function that checks if a string has balanced parentheses/brackets.",
+        "expected_output": {
+            "tests": [
+                {"input": "([]{})", "output": True},
+                {"input": "([)]", "output": False},
+                {"input": "(", "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function that flattens a nested list into a single list.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, [2, [3, 4]], 5], "output": [1, 2, 3, 4, 5]},
+                {"input": [], "output": []},
+                {"input": [[1, 2], [3]], "output": [1, 2, 3]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function that performs binary search and returns the index or -1.",
+        "expected_output": {
+            "tests": [
+                {"input": {"arr": [1, 3, 5, 7], "target": 5}, "output": 2},
+                {"input": {"arr": [1, 3, 5, 7], "target": 4}, "output": -1},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function that removes duplicates from a sorted array.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 1, 2, 2, 3], "output": [1, 2, 3]},
+                {"input": [0, 0, 0], "output": [0]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function that finds the longest common subsequence of two strings.",
+        "expected_output": {
+            "tests": [
+                {"input": {"a": "abcde", "b": "ace"}, "output": "ace"},
+                {"input": {"a": "abc", "b": "abc"}, "output": "abc"},
+                {"input": {"a": "abc", "b": "def"}, "output": ""},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write serialize/deserialize functions for a binary tree using level-order lists.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 3, None, None, 4, 5], "output": "1,2,3,null,null,4,5"},
+                {"input": [], "output": ""},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function that finds the median of two sorted arrays.",
+        "expected_output": {
+            "tests": [
+                {"input": {"a": [1, 3], "b": [2]}, "output": 2.0},
+                {"input": {"a": [1, 2], "b": [3, 4]}, "output": 2.5},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write an LRU cache with get/put operations.",
+        "expected_output": {
+            "tests": [
+                {
+                    "input": {
+                        "capacity": 2,
+                        "ops": [
+                            ["put", 1, 1],
+                            ["put", 2, 2],
+                            ["get", 1],
+                            ["put", 3, 3],
+                            ["get", 2],
+                            ["put", 4, 4],
+                            ["get", 1],
+                            ["get", 3],
+                            ["get", 4],
+                        ],
+                    },
+                    "output": [None, None, 1, None, -1, None, -1, 3, 4],
+                }
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function that solves the N-Queens problem and returns the number of solutions.",
+        "expected_output": {
+            "tests": [
+                {"input": 1, "output": 1},
+                {"input": 4, "output": 2},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+]
+
+CERT_TESTS = [
+    {
+        "category": "coding",
+        "tier": "bronze",
+        "name": "Certified Coder — Bronze",
+        "description": "Entry-level coding certification covering fundamentals.",
+        "passing_score": 0.6,
+        "task_count": 5,
+        "time_limit_seconds": 1800,
+        "price_cents": 1000,
+    },
+    {
+        "category": "coding",
+        "tier": "silver",
+        "name": "Certified Coder — Silver",
+        "description": "Intermediate coding certification focused on core algorithms.",
+        "passing_score": 0.8,
+        "task_count": 5,
+        "time_limit_seconds": 2400,
+        "price_cents": 2500,
+    },
+    {
+        "category": "coding",
+        "tier": "gold",
+        "name": "Certified Coder — Gold",
+        "description": "Advanced coding certification for complex problems.",
+        "passing_score": 0.95,
+        "task_count": 5,
+        "time_limit_seconds": 3000,
+        "price_cents": 5000,
+    },
+]
+
 
 async def seed():
     async with AsyncSessionLocal() as session:
@@ -416,6 +671,18 @@ async def seed():
             if existing.scalar_one_or_none():
                 continue
             session.add(Seal(**seal_data))
+
+        for test_data in CERT_TESTS:
+            existing = await session.execute(select(CertTest).where(CertTest.name == test_data["name"]))
+            if existing.scalar_one_or_none():
+                continue
+            session.add(CertTest(**test_data))
+
+        for task_data in CERT_TASKS:
+            existing = await session.execute(select(CertTask).where(CertTask.prompt == task_data["prompt"]))
+            if existing.scalar_one_or_none():
+                continue
+            session.add(CertTask(**task_data))
 
         existing_agent = await session.execute(select(Agent).where(Agent.slug == "alice"))
         alice = existing_agent.scalar_one_or_none()

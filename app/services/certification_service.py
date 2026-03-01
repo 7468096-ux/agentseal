@@ -1,0 +1,195 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from datetime import datetime
+from typing import Any
+
+from fastapi import HTTPException
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.models import Agent, AgentSeal, CertAttempt, CertTask, CertTest, Payment, Seal
+
+
+DIFFICULTY_BY_TIER = {
+    "bronze": "easy",
+    "silver": "medium",
+    "gold": "hard",
+}
+
+
+async def create_cert_payment_stub(session: AsyncSession, agent: Agent, test: CertTest) -> Payment:
+    checkout_url = f"{settings.app_url}/payment/certification/{test.id}"
+    payment = Payment(
+        agent_id=agent.id,
+        amount_cents=test.price_cents,
+        currency="USD",
+        status="pending",
+        provider="stripe",
+        provider_payment_id=None,
+        provider_checkout_url=checkout_url,
+        payment_metadata={"test_id": str(test.id), "category": test.category, "tier": test.tier},
+    )
+    session.add(payment)
+    await session.flush()
+    return payment
+
+
+async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> dict[str, Any]:
+    if not test.is_active:
+        raise HTTPException(status_code=404, detail="certification not found")
+
+    if test.price_cents > 0:
+        payment = await create_cert_payment_stub(session, agent, test)
+        return {
+            "type": "payment_required",
+            "payment": payment,
+            "checkout_url": payment.provider_checkout_url,
+            "expires_in_seconds": 1800,
+        }
+
+    difficulty = DIFFICULTY_BY_TIER.get(test.tier, "easy")
+    tasks_result = await session.execute(
+        select(CertTask)
+        .where(
+            CertTask.test_category == test.category,
+            CertTask.difficulty == difficulty,
+            CertTask.is_active == True,
+        )
+        .order_by(func.random())
+        .limit(test.task_count)
+    )
+    tasks = tasks_result.scalars().all()
+    if len(tasks) < test.task_count:
+        raise HTTPException(status_code=400, detail="insufficient tasks available")
+
+    attempt_tasks = [
+        {
+            "id": str(task.id),
+            "prompt": task.prompt,
+            "task_type": task.task_type,
+            "difficulty": task.difficulty,
+            "expected_output": task.expected_output,
+            "scoring_rubric": task.scoring_rubric,
+        }
+        for task in tasks
+    ]
+
+    attempt = CertAttempt(
+        agent_id=agent.id,
+        test_id=test.id,
+        status="in_progress",
+        tasks=attempt_tasks,
+        started_at=datetime.utcnow(),
+    )
+    session.add(attempt)
+    await session.flush()
+
+    return {"type": "attempt", "attempt": attempt}
+
+
+async def submit_answers(session: AsyncSession, attempt: CertAttempt, answers: dict[str, Any]) -> CertAttempt:
+    attempt.answers = answers
+    attempt.status = "completed"
+    attempt.completed_at = datetime.utcnow()
+    await session.flush()
+    return attempt
+
+
+def _score_task(task: dict[str, Any], answer: Any) -> dict[str, Any]:
+    tests = task.get("expected_output", {}).get("tests", [])
+    correctness = 0.0
+    if tests:
+        expected_outputs = [case.get("output") for case in tests]
+        if isinstance(answer, dict) and isinstance(answer.get("outputs"), list):
+            provided = answer.get("outputs", [])
+            matches = sum(1 for expected, actual in zip(expected_outputs, provided) if expected == actual)
+            correctness = matches / max(len(expected_outputs), 1)
+        elif answer in expected_outputs:
+            correctness = 1.0
+    elif answer:
+        correctness = 1.0
+
+    efficiency = 0.5 if answer else 0.0
+    style = 0.5 if answer else 0.0
+
+    score = correctness * 0.7 + efficiency * 0.2 + style * 0.1
+
+    return {
+        "task_id": task.get("id"),
+        "correctness": round(correctness, 4),
+        "efficiency": round(efficiency, 4),
+        "style": round(style, 4),
+        "score": round(score, 4),
+        "passed": score >= 0.7,
+    }
+
+
+async def grade_attempt(session: AsyncSession, attempt: CertAttempt, test: CertTest) -> CertAttempt:
+    tasks = attempt.tasks or []
+    answers = attempt.answers or {}
+    results = []
+    total_score = 0.0
+
+    for task in tasks:
+        answer = answers.get(task.get("id")) or answers.get(str(task.get("id")))
+        result = _score_task(task, answer)
+        results.append(result)
+        total_score += result["score"]
+
+    final_score = round(total_score / max(len(results), 1), 4) if results else 0.0
+    passed = final_score >= test.passing_score
+
+    attempt.results = results
+    attempt.score = final_score
+    attempt.passed = passed
+
+    return attempt
+
+
+async def issue_certification(session: AsyncSession, attempt: CertAttempt, test: CertTest) -> AgentSeal | None:
+    if not attempt.passed:
+        return None
+
+    seal_slug = None
+    if test.category == "coding":
+        seal_slug = f"certified-coder-{test.tier}"
+
+    if not seal_slug:
+        return None
+
+    seal_result = await session.execute(select(Seal).where(Seal.slug == seal_slug))
+    seal = seal_result.scalar_one_or_none()
+    if not seal:
+        return None
+
+    existing = await session.execute(
+        select(AgentSeal).where(AgentSeal.agent_id == attempt.agent_id, AgentSeal.seal_id == seal.id)
+    )
+    if existing.scalar_one_or_none():
+        return None
+
+    proof = {
+        "attempt_id": str(attempt.id),
+        "test_id": str(test.id),
+        "score": attempt.score,
+        "passed": attempt.passed,
+        "graded_at": datetime.utcnow().isoformat(),
+    }
+    proof_hash = hashlib.sha256(json.dumps(proof, sort_keys=True).encode("utf-8")).hexdigest()
+
+    agent_seal = AgentSeal(
+        agent_id=attempt.agent_id,
+        seal_id=seal.id,
+        proof=proof,
+        proof_hash=proof_hash,
+    )
+    session.add(agent_seal)
+    seal.issued_count += 1
+    await session.flush()
+
+    attempt.seal_issued_id = agent_seal.id
+
+    return agent_seal

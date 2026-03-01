@@ -3,5 +3,16 @@ from app.models.api_key import ApiKey
 from app.models.seal import Seal, AgentSeal
 from app.models.payment import Payment
 from app.models.invite_code import InviteCode
+from app.models.certification import CertTest, CertAttempt, CertTask
 
-__all__ = ["Agent", "ApiKey", "Seal", "AgentSeal", "Payment", "InviteCode"]
+__all__ = [
+    "Agent",
+    "ApiKey",
+    "Seal",
+    "AgentSeal",
+    "Payment",
+    "InviteCode",
+    "CertTest",
+    "CertAttempt",
+    "CertTask",
+]

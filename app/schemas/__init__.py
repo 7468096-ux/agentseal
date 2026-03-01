@@ -17,6 +17,15 @@ from app.schemas.seal import (
     IssueSealPaidResponse,
 )
 from app.schemas.payment import PaymentResponse
+from app.schemas.certification import (
+    CertTestResponse,
+    CertTestListResponse,
+    CertAttemptResponse,
+    StartAttemptResponse,
+    SubmitAttemptRequest,
+    SubmitAttemptResponse,
+    AttemptResultsResponse,
+)
 
 __all__ = [
     "AgentBase",
@@ -34,4 +43,11 @@ __all__ = [
     "IssueSealFreeResponse",
     "IssueSealPaidResponse",
     "PaymentResponse",
+    "CertTestResponse",
+    "CertTestListResponse",
+    "CertAttemptResponse",
+    "StartAttemptResponse",
+    "SubmitAttemptRequest",
+    "SubmitAttemptResponse",
+    "AttemptResultsResponse",
 ]
