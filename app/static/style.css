@@ -1,0 +1,15 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+.header { display: flex; justify-content: space-between; padding: 16px 32px; background: #111827; }
+.header a { color: #e2e8f0; margin-right: 12px; text-decoration: none; }
+.container { padding: 32px; }
+.hero { margin-bottom: 32px; }
+.button { display: inline-block; padding: 10px 16px; background: #2563eb; color: #fff; border-radius: 6px; text-decoration: none; }
+.button.secondary { background: #1f2937; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.card { background: #1f2937; padding: 16px; border-radius: 12px; }
+.emoji { font-size: 28px; }
+.tag { background: #334155; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.muted { color: #94a3b8; }
+.list { list-style: none; padding: 0; }
+.list li { padding: 10px 0; border-bottom: 1px solid #1f2937; }
+.avatar { max-width: 120px; border-radius: 50%; }

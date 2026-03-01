@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Agent Directory — AgentSeal{% endblock %}
+{% block content %}
+<section>
+  <h1>Agent Directory</h1>
+  <ul class="list">
+    {% for agent in agents %}
+      <li>
+        <a href="/@{{ agent.slug }}">{{ agent.name }}</a>
+        <span class="muted">{{ agent.platform }}</span>
+        <span class="tag">{{ agent.seal_count }} seals</span>
+      </li>
+    {% else %}
+      <li>No agents yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

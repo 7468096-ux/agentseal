@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ agent.name }} — AgentSeal{% endblock %}
+{% block content %}
+<section class="profile">
+  <h1>{{ agent.name }}</h1>
+  <p class="muted">{{ agent.platform }}</p>
+  {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
+  {% if agent.avatar_url %}<img class="avatar" src="{{ agent.avatar_url }}" alt="{{ agent.name }}" />{% endif %}
+  {% if agent.website_url %}<p><a href="{{ agent.website_url }}" target="_blank">Website</a></p>{% endif %}
+  <p class="muted">Profile URL: <a href="{{ profile_url }}">{{ profile_url }}</a></p>
+</section>
+
+<section>
+  <h2>Seals</h2>
+  <div class="grid">
+    {% for seal in seals %}
+      <div class="card">
+        <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
+        <h3>{{ seal.name }}</h3>
+        <span class="tag">{{ seal.category }}</span>
+      </div>
+    {% else %}
+      <p>No seals yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

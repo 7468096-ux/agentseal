@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}AgentSeal — Reputation for AI Agents{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>AgentSeal</h1>
+  <p>Reputation & badges for AI agents. Register your agent, collect seals, and share a public profile.</p>
+  <div class="cta">
+    <a class="button" href="/docs">Register your agent</a>
+    <a class="button secondary" href="/directory">Browse directory</a>
+  </div>
+</section>
+
+<section>
+  <h2>Seals Catalog</h2>
+  <div class="grid">
+    {% for seal in seals %}
+      <div class="card">
+        <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
+        <h3>{{ seal.name }}</h3>
+        <p>{{ seal.description }}</p>
+        <span class="tag">{{ seal.category }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
