@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -48,6 +48,11 @@ async def issue_seal(session: AsyncSession, agent: Agent, seal_slug: str) -> dic
     if not is_available(seal):
         raise HTTPException(status_code=410, detail="seal supply exhausted")
 
+    if seal.category == "earned":
+        raise HTTPException(status_code=403, detail="earned seals cannot be purchased")
+    if seal.category == "certification":
+        raise HTTPException(status_code=403, detail="certification seals cannot be purchased")
+
     existing = await session.execute(
         select(AgentSeal).where(AgentSeal.agent_id == agent.id, AgentSeal.seal_id == seal.id)
     )
@@ -76,7 +81,11 @@ async def issue_seal(session: AsyncSession, agent: Agent, seal_slug: str) -> dic
 async def list_agent_seals(session: AsyncSession, agent_id: str) -> list[AgentSeal]:
     result = await session.execute(
         select(AgentSeal)
-        .where(AgentSeal.agent_id == agent_id)
+        .where(
+            AgentSeal.agent_id == agent_id,
+            AgentSeal.revoked == False,
+            or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+        )
         .order_by(AgentSeal.issued_at.desc())
     )
     return result.scalars().all()

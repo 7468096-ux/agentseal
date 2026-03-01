@@ -60,7 +60,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
 
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            api_key = request.headers.get("X-API-Key") or "unknown"
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.lower().startswith("bearer "):
+                api_key = auth_header.split(" ", 1)[1].strip()
+            elif auth_header:
+                api_key = auth_header.strip()
+            else:
+                api_key = "unknown"
             if not limiter.allow(f"api:{api_key}", self.api_rate):
                 return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
 

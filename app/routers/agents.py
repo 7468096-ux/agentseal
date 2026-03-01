@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -43,7 +43,13 @@ def build_seal_summary(agent_seals: list[AgentSeal], seals_by_id: dict[str, Seal
 
 
 async def get_agent_seals(session: AsyncSession, agent_id: str) -> tuple[list[AgentSeal], dict[str, Seal]]:
-    result = await session.execute(select(AgentSeal).where(AgentSeal.agent_id == agent_id))
+    result = await session.execute(
+        select(AgentSeal).where(
+            AgentSeal.agent_id == agent_id,
+            AgentSeal.revoked == False,
+            or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+        )
+    )
     agent_seals = result.scalars().all()
     if not agent_seals:
         return [], {}

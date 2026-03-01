@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -34,7 +34,11 @@ async def profile(slug: str, request: Request, session: AsyncSession = Depends(g
         await session.execute(
             select(AgentSeal, Seal)
             .join(Seal, AgentSeal.seal_id == Seal.id)
-            .where(AgentSeal.agent_id == agent.id)
+            .where(
+                AgentSeal.agent_id == agent.id,
+                AgentSeal.revoked == False,
+                or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+            )
         )
     ).all()
 
@@ -65,7 +69,14 @@ async def directory(request: Request, session: AsyncSession = Depends(get_sessio
     counts = (
         await session.execute(
             select(Agent, func.count(AgentSeal.id).label("seal_count"))
-            .outerjoin(AgentSeal, Agent.id == AgentSeal.agent_id)
+            .outerjoin(
+                AgentSeal,
+                (
+                    (Agent.id == AgentSeal.agent_id)
+                    & (AgentSeal.revoked == False)
+                    & (or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()))
+                ),
+            )
             .group_by(Agent.id)
             .order_by(func.count(AgentSeal.id).desc())
         )

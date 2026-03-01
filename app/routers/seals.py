@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -61,7 +61,11 @@ async def seal_detail(seal_id: str, session: AsyncSession = Depends(get_session)
     recent = await session.execute(
         select(Agent)
         .join(AgentSeal, AgentSeal.agent_id == Agent.id)
-        .where(AgentSeal.seal_id == seal.id)
+        .where(
+            AgentSeal.seal_id == seal.id,
+            AgentSeal.revoked == False,
+            or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+        )
         .order_by(AgentSeal.issued_at.desc())
         .limit(10)
     )

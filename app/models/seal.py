@@ -38,6 +38,7 @@ class AgentSeal(Base):
     issued_at: Mapped[str] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expires_at: Mapped[str | None] = mapped_column(DateTime(timezone=True))
     proof: Mapped[dict | None] = mapped_column(JSONB)
+    proof_hash: Mapped[str | None] = mapped_column(String(64))
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     revoked_at: Mapped[str | None] = mapped_column(DateTime(timezone=True))
     revoked_reason: Mapped[str | None] = mapped_column(String(255))
