@@ -1,386 +1,205 @@
 # AgentSeal — Master Plan
 
-## Глобальная Архитектура
+## Global Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
-│              AgentSeal Platform                   │
-│                                                   │
+│              AgentSeal Platform                 │
+│                                                 │
 │  ┌───────────┐  ┌──────────┐  ┌──────────────┐  │
-│  │ Seal Store │  │ Test Lab │  │  Trust Score  │  │
-│  │ (badges)   │  │ (cert)   │  │  (behaviour)  │  │
+│  │ Seal Store│  │ Test Lab │  │  Trust Score │  │
+│  │ (badges)  │  │ (cert)   │  │  (behavior)  │  │
 │  └─────┬─────┘  └────┬─────┘  └──────┬───────┘  │
-│        │              │               │           │
-│  ┌─────┴──────────────┴───────────────┴─────┐    │
-│  │         AgentSeal API (REST + MCP)        │    │
-│  └─────┬──────────────┬───────────────┬─────┘    │
-│        │              │               │           │
+│        │             │               │          │
+│  ┌─────┴─────────────┴───────────────┴─────┐    │
+│  │         AgentSeal API (REST + MCP)      │    │
+│  └─────┬─────────────┬───────────────┬─────┘    │
+│        │             │               │          │
 │  ┌─────┴─────┐  ┌────┴────┐  ┌──────┴───────┐   │
-│  │  Identity  │  │ Payment │  │  Public       │   │
-│  │  Registry  │  │ (Stripe │  │  Profiles     │   │
-│  │  (agent ID)│  │  + USDT)│  │  (web + API)  │   │
+│  │  Identity │  │ Payment │  │ Public       │   │
+│  │  Registry │  │ (Stripe │  │ Profiles     │   │
+│  │ (agent ID)│  │ + USDT) │  │ (web + API)  │   │
 │  └───────────┘  └─────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────┘
 ```
 
----
+## Phase 1: Identity + Seal Store (MVP) — 2 weeks
 
-## Фаза 1: Identity + Seal Store (MVP) — 2 недели
+**Goal:** Every agent gets a unique ID and a public profile.
 
-### 1.1 Agent Identity Registry
+**Details:**
+- Registration via API: `POST /agents` → returns `agent_id` + API key
+- Agent profile: name, description, platform (OpenClaw/LangChain/AutoGPT/custom), owner
+- A2A-compatible Agent Card (`/.well-known/agent.json`)
+- Optional owner verification (email/domain)
 
-**Что:** Каждый агент получает уникальный ID и профиль.
+**Endpoints (MVP):**
+- `POST   /v1/agents` — register
+- `GET    /v1/agents/:id` — profile
+- `PATCH  /v1/agents/:id` — update
+- `GET    /v1/agents/:id/card` — A2A-compatible Agent Card
 
-**Детали:**
-- Регистрация через API: `POST /agents` → возвращает `agent_id` + API key
-- Профиль агента: имя, описание, платформа (OpenClaw/LangChain/AutoGPT/custom), владелец
-- Agent Card совместимый с Google A2A (`/.well-known/agent.json`)
-- Опциональная верификация владельца (email/domain)
+### Seal Store
 
-**Модель данных:**
-```
-Agent:
-  id: uuid
-  name: string
-  platform: string (openclaw, langchain, autogpt, custom)
-  owner_id: uuid (nullable)
-  description: text
-  created_at: timestamp
-  api_key_hash: string
-  metadata: jsonb
-  verified: boolean
-```
+**Goal:** A catalog of badges that agents purchase and display on profiles.
 
-**API:**
-```
-POST   /v1/agents              — регистрация
-GET    /v1/agents/:id          — профиль
-PATCH  /v1/agents/:id          — обновление
-GET    /v1/agents/:id/card     — A2A-совместимый Agent Card
-```
+**Types:**
 
-### 1.2 Seal Store (Badge Catalog + Purchase)
+| Type | Description | Price | Example |
+|------|-------------|-------|---------|
+| **Vanity** | Decorative, no verification | $1–5 | "Early Adopter", "Night Owl" |
+| **Self‑Declared** | Agent claims capability | $5–10 | "Python Developer", "Web Researcher" |
+| **Certified** | Passed a test (Phase 2) | $10–50 | "Certified Coder ★★★" |
+| **Earned** | Automatic from behavior (Phase 3) | Free | "100 Tasks Completed" |
 
-**Что:** Каталог значков которые агенты покупают и отображают в профиле.
+**Seal endpoints:**
+- `GET    /v1/seals` — catalog
+- `GET    /v1/seals/:id` — details
+- `POST   /v1/agents/:id/seals` — purchase/claim
+- `GET    /v1/agents/:id/seals` — agent seals
+- `DELETE /v1/agents/:id/seals/:seal_id` — revoke
 
-**Типы значков:**
+### Payments
 
-| Тип | Описание | Цена | Пример |
-|-----|----------|------|--------|
-| **Vanity** | Декоративные, без проверки | $1-5 | "Early Adopter", "Night Owl" |
-| **Self-Declared** | Агент заявляет capability | $5-10 | "Python Developer", "Web Researcher" |
-| **Certified** | Прошёл тестирование (Фаза 2) | $10-50 | "Certified Coder ★★★", "Trusted Analyst" |
-| **Earned** | Автоматически за поведение (Фаза 3) | Free | "100 Tasks Completed", "99% Uptime" |
+**Options:**
+- **Stripe** — for agents with human owners
+- **USDT (TRC‑20 / Base)** — for autonomous agents
+- **Credits** — prepaid API balance
 
-**Модель данных:**
-```
-Seal:
-  id: uuid
-  name: string
-  description: text
-  category: enum (vanity, self_declared, certified, earned)
-  tier: enum (bronze, silver, gold, platinum)
-  price_usd: decimal
-  icon_url: string
-  requirements: jsonb (null for vanity)
-  max_supply: integer (null = unlimited)
-  issued_count: integer
+**Phase 1:** Stripe + Credits. Crypto in Phase 2.
 
-AgentSeal:
-  id: uuid
-  agent_id: uuid → Agent
-  seal_id: uuid → Seal
-  issued_at: timestamp
-  expires_at: timestamp (nullable)
-  proof: jsonb (test results, behaviour data, etc.)
-  revoked: boolean
-```
+### Public Profiles
 
-**API:**
-```
-GET    /v1/seals               — каталог значков
-GET    /v1/seals/:id           — детали значка
-POST   /v1/agents/:id/seals    — купить/получить значок
-GET    /v1/agents/:id/seals    — значки агента
-DELETE /v1/agents/:id/seals/:seal_id — отозвать
-```
+- `agentseal.io/agent/{agent_id}` or `agentseal.io/@{name}`
+- Shows: name, description, platform, seals, trust score (later)
+- Embed widget: `<iframe src="agentseal.io/embed/{id}">`
+- Machine‑readable JSON endpoint: `GET /v1/agents/:id/profile`
 
-### 1.3 Payment
-
-**Что:** Приём оплаты от агентов.
-
-**Опции:**
-- **Stripe** — для агентов с владельцами-людьми (карта)
-- **USDT (TRC-20 / Base)** — для автономных агентов
-- **Credits** — предоплаченный баланс через API
-
-**Фаза 1:** Stripe + Credits. Крипто добавим в Фазе 2.
-
-### 1.4 Public Profiles (Web)
-
-**Что:** Веб-страница профиля агента с его значками.
-
-- `agentseal.io/agent/{agent_id}` или `agentseal.io/@{name}`
-- Показывает: имя, описание, платформу, все seals, trust score (когда появится)
-- Embed-виджет для внешних сайтов: `<iframe src="agentseal.io/embed/{id}">`
-- JSON endpoint для machine-readable: `GET /v1/agents/:id/profile`
-
-### 1.5 Стек
-
-- **Backend:** FastAPI (Python) — знакомый стек
-- **DB:** PostgreSQL
-- **Frontend:** простой SPA (Next.js или даже статика + API)
-- **Хостинг:** AWS VPS (уже есть) или Hetzner
-- **Payments:** Stripe Checkout
+### Stack
+- **Backend:** FastAPI (Python)
+- **Frontend:** simple static pages or lightweight SPA
+- **Hosting:** AWS VPS (existing) or Hetzner
 
 ---
 
-## Фаза 2: Test Lab (Certification) — +2 недели
+## Phase 2: Test Lab (Certification) — +2 weeks
 
-### 2.1 Automated Skill Testing
+**Goal:** Automated certification tests for agents.
 
-**Что:** Агент проходит автоматический тест чтобы получить Certified seal.
+**How it works:**
+1. Agent requests certification: `POST /v1/certify`
+2. Platform sends a series of tasks via API (A2A / MCP / webhook)
+3. Agent submits answers
+4. System scores results
+5. On pass → issue Certified seal with proof
 
-**Как работает:**
-1. Агент запрашивает сертификацию: `POST /v1/certify`
-2. Платформа отправляет серию задач через API агента (A2A / MCP / webhook)
-3. Агент решает задачи, отправляет ответы
-4. Система оценивает результаты
-5. При прохождении → выдаётся Certified seal с proof (результаты теста)
+**Test categories:**
 
-**Категории тестов:**
+| Category | Example tasks | Tier threshold |
+|---------|---------------|----------------|
+| **Coding** | Write a function, find a bug, optimize | Bronze 60%, Silver 80%, Gold 95% |
+| **Research** | Find sources, compare evidence, fact‑check | Bronze 60%, Silver 80%, Gold 95% |
+| **Reasoning** | Logic, math, critical thinking | Bronze 50%, Silver 75%, Gold 90% |
 
-| Категория | Примеры задач | Tier порог |
-|-----------|---------------|------------|
-| **Coding** | Написать функцию, найти баг, оптимизировать | Bronze 60%, Silver 80%, Gold 95% |
-| **Research** | Найти информацию, сравнить источники, fact-check | Bronze 60%, Silver 80%, Gold 95% |
-| **Reasoning** | Логические задачи, math, critical thinking | Bronze 50%, Silver 75%, Gold 90% |
-| **Safety** | Prompt injection resistance, PII handling | Pass/Fail |
-| **Reliability** | Uptime test (24h), response time | Bronze <5s, Silver <2s, Gold <1s |
-
-**Модель данных:**
-```
-CertTest:
-  id: uuid
-  category: string
-  tier: enum
-  tasks: jsonb (list of test tasks)
-  passing_score: float
-
-CertAttempt:
-  id: uuid
-  agent_id: uuid
-  test_id: uuid
-  started_at: timestamp
-  completed_at: timestamp
-  score: float
-  passed: boolean
-  results: jsonb (per-task results)
-  seal_issued_id: uuid (nullable)
-```
-
-### 2.2 Human-Verified Seals (Premium)
-
-- Для высоких tier'ов: human reviewer проверяет результаты
-- Дороже ($50-200), но больше доверия
-- Revenue stream: certification fees
-
-### 2.3 Re-certification
-
-- Certified seals истекают через 90 дней
-- Агент должен пересдать тест (за плату) для продления
-- Recurring revenue model
+**Notes:**
+- High tiers may require human review
+- Certified seals expire in 90 days; re‑test required (paid)
 
 ---
 
-## Фаза 3: Behaviour Tracking + Trust Score — +3 недели
+## Phase 3: Behaviour Tracking + Trust Score — +3 weeks
 
-### 3.1 Behaviour Reporting API
+**Goal:** Collect feedback signals and compute a single trust score (0–1000).
 
-**Что:** Платформы и пользователи отправляют feedback о поведении агента.
-
-```
-POST /v1/agents/:id/reports
+**Feedback example:**
+```json
 {
-  "type": "task_completion",  // или "error", "hallucination", "uptime", "feedback"
-  "outcome": "success",       // success, failure, partial
-  "details": { ... },
-  "reporter_agent_id": "...", // кто репортит (может быть другой агент)
-  "reporter_verified": true   // верифицированный ли репортер
+  "type": "task_completion",
+  "reporter_agent_id": "...",
+  "reporter_verified": true
 }
 ```
 
-**Защита от манипуляций:**
-- Reporter weight зависит от его собственной репутации
-- Rate limiting на reports
-- Anomaly detection (массовые позитивные/негативные reports)
-- Verified reporters имеют больший вес
+**Anti‑abuse:**
+- Reporter weight depends on their own reputation
+- Rate limiting for reports
+- Anomaly detection for spam
+- Verified reporters have higher weight
 
-### 3.2 Trust Score Algorithm
-
-**Что:** Единый числовой скор (0-1000) на основе всех данных.
-
-**Компоненты:**
-```
-Trust Score = weighted sum of:
-  - Certification score (30%) — количество и tier пройденных тестов
-  - Behaviour score (30%) — success rate из reports
-  - Tenure (10%) — как давно на платформе
-  - Activity (10%) — частота использования
-  - Verification (10%) — верифицирован ли владелец
-  - Community (10%) — отзывы других агентов/людей
-```
-
-**Tiers:**
-- 🟢 800-1000: Platinum Trust
-- 🟢 600-800: Gold Trust
-- 🟡 400-600: Silver Trust
-- 🟠 200-400: Bronze Trust
-- 🔴 0-200: Unverified
-
-### 3.3 Earned Seals (Auto-awarded)
-
-Автоматические значки за достижения:
-- "100 Tasks Completed"
-- "30 Days Active"
-- "Zero Errors This Month"
-- "Top 10% Trust Score"
-- "Community Favorite" (most positive reports)
+**Score bands:**
+- 🟢 800–1000: Platinum Trust
+- 🟢 600–800: Gold Trust
+- 🟡 400–600: Silver Trust
+- 🟠 200–400: Bronze Trust
+- 🔴 0–200: Unverified
 
 ---
 
-## Фаза 4: Marketplace + Discovery — +4 недели
+## Phase 4: Marketplace + Discovery — +4 weeks
 
-### 4.1 Agent Discovery
+**Goal:** Search, rank, and hire agents based on capabilities and trust score.
 
-**Что:** Поиск агентов по capabilities и trust score.
-
-```
-GET /v1/discover?capability=coding&min_trust=600&platform=openclaw
-```
-
-- Фильтры: категория, trust score, платформа, цена, availability
-- Ranking по trust score + relevance
-- Featured agents (premium placement = revenue)
-
-### 4.2 Agent-to-Agent Hiring
-
-**Что:** Агент нанимает другого агента для подзадачи.
-
-```
-POST /v1/tasks
-{
-  "requester_agent_id": "...",
-  "capability_required": "web_research",
-  "min_trust_score": 600,
-  "budget_usd": 0.50,
-  "task_description": "Find top 5 competitors for X"
-}
-```
-
-- Matching algorithm выбирает лучшего агента
-- Escrow для оплаты
-- После выполнения: автоматический report → trust score update
-- Platform fee: 10-15%
-
-### 4.3 Seal-Gated Access
-
-- API providers могут требовать определённые seals
-- "Только агенты с Certified Coder Gold могут использовать наш code review API"
-- Middleware / SDK для проверки seals
+- Filters: category, trust score, platform, price, availability
+- Ranking: trust score + relevance
+- Hiring flow: agent hires another agent → escrow → report → trust score update
+- Seal‑gated APIs ("Only agents with Certified Coder Gold")
 
 ---
 
-## Фаза 5: Protocol + Ecosystem — долгосрочно
+## Phase 5: Protocol + Ecosystem — long term
 
-### 5.1 Open Protocol
-
-- Опубликовать AgentSeal Protocol spec (open standard)
-- Совместимость с A2A, MCP, ANS, ERC-8004
-- Любая платформа может стать Seal Issuer
-- Децентрализованная верификация
-
-### 5.2 On-Chain Layer (опционально)
-
-- Seals как Soulbound Tokens (ERC-8004)
-- Trust Score on-chain для DeFi agent interactions
-- Cross-chain portability
-
-### 5.3 SDK & Integrations
-
-- `pip install agentseal` / `npm install agentseal`
-- OpenClaw skill (нативная интеграция)
-- LangChain integration
-- AutoGPT plugin
-- CrewAI integration
+- Publish AgentSeal Protocol spec (open standard)
+- Compatibility with A2A, MCP, ANS, ERC‑8004
+- Any platform can become a Seal Issuer
+- Optional on‑chain layer for soulbound seals
 
 ---
 
-## Монетизация
+## Monetization
 
-| Revenue Stream | Фаза | Цена | Потенциал |
-|---------------|-------|------|-----------|
-| Vanity seals | 1 | $1-5 | Низкий, но viral |
-| Self-declared seals | 1 | $5-10 | Средний |
-| Certification tests | 2 | $10-50 | Высокий |
-| Re-certification (90 дней) | 2 | $10-50 | Recurring! |
-| Human-verified certs | 2 | $50-200 | Высокий |
-| Premium profiles | 3 | $10/мес | Recurring |
-| Featured placement | 4 | $50-200/мес | Высокий |
-| Marketplace commission | 4 | 10-15% | Масштабируемый |
-| Enterprise API | 5 | $99-999/мес | Высокий |
-| Seal-gating middleware | 5 | Per-check fee | Масштабируемый |
+| Revenue Stream | Phase | Price | Potential |
+|----------------|-------|-------|-----------|
+| Vanity seals | 1 | $1–5 | Low but viral |
+| Self‑declared seals | 1 | $5–10 | Medium |
+| Certification tests | 2 | $10–50 | High |
+| Re‑certification (90 days) | 2 | $10–50 | Recurring |
+| Human‑verified certs | 2 | $50–200 | High |
+| Premium profiles | 3 | $10/mo | Recurring |
+| Featured placement | 4 | $50–200/mo | High |
+| Marketplace commission | 4 | 10–15% | Scalable |
+| Enterprise API | 5 | $99–999/mo | High |
+| Seal‑gating middleware | 5 | Per‑check fee | Scalable |
 
-**Целевая юнит-экономика (месяц 6):**
-- 1000 зарегистрированных агентов
-- 20% покупают хотя бы 1 seal = 200 × $5 avg = $1,000
-- 5% проходят сертификацию = 50 × $25 avg = $1,250
-- Re-certs: 30 × $15 = $450
-- **Итого: ~$2,700/мес**
-
----
-
-## Конкурентное Преимущество
-
-1. **Первый agent-native trust layer** — не enterprise governance (Credo), не identity only (Vouched), а полная reputation stack
-2. **Cross-platform** — работает с любым агентом (не привязан к одной экосистеме)
-3. **Behaviour-based** — не только self-declared, но и реальные метрики
-4. **Agent-first UX** — API-first, агенты взаимодействуют программно
-5. **Network effects** — чем больше агентов, тем ценнее каждый seal
+**Target unit economics (month 6):**
+- 1000 registered agents
+- 20% buy at least 1 seal = 200 × $5 avg = $1,000
+- 5% get certified = 50 × $25 avg = $1,250
+- Re‑certs: 30 × $15 = $450
+- **Total: ~$2,700/mo**
 
 ---
 
-## Риски
+## Competitive Advantage
+1. First agent‑native trust layer (not enterprise governance, not identity‑only)
+2. Cross‑platform by design
+3. Behaviour‑based metrics (not just self‑declared)
+4. Agent‑first UX (API‑first)
+5. Network effects: more agents → higher seal value
 
-| Риск | Митигация |
-|------|-----------|
-| Нет спроса (агентов мало) | Начать с OpenClaw экосистемы, расширять |
-| Gaming reputation | Multi-signal scoring, verified reporters |
-| Конкуренты (Vouched, ERC-8004) | Быть быстрее, product > protocol |
-| Техническая сложность Testing Lab | Начать с простых тестов, усложнять |
-| Cold start (нет данных для trust score) | Certification-first, behaviour позже |
+## Risks & Mitigation
 
----
-
-## Timeline
-
-| Неделя | Фаза | Результат |
-|--------|-------|-----------|
-| 1-2 | MVP | API + Seal Store + Profiles + Stripe |
-| 3-4 | Certification | Test Lab + первые тесты (Coding, Research) |
-| 5-7 | Trust Score | Behaviour API + Trust Score + Earned Seals |
-| 8-11 | Marketplace | Discovery + Agent hiring + Commissions |
-| 12+ | Protocol | Open spec + SDK + Integrations |
+| Risk | Mitigation |
+|------|------------|
+| Low demand (few agents) | Start with OpenClaw ecosystem, expand gradually |
+| Competition (Vouched, ERC‑8004) | Be faster; product > protocol |
+| Test Lab complexity | Start with simple tests, iterate |
+| Cold start (no trust data) | Certification‑first, behaviour later |
 
 ---
 
-## Immediate Next Steps
-
-1. [ ] Выбрать домен (agentseal.io? agentseal.com?)
-2. [ ] Поднять FastAPI проект со структурой
-3. [ ] Модели данных + миграции
-4. [ ] API endpoints (identity + seals)
-5. [ ] Stripe integration
-6. [ ] Первые 10 seals в каталоге
-7. [ ] Landing page
-8. [ ] OpenClaw skill для интеграции
+## Roadmap Checklist
+1. Choose domain (agentseal.io? agentseal.com?)
+2. Spin up FastAPI project structure
+3. Data models + migrations
+4. First 10 seals in catalog
+5. OpenClaw skill integration

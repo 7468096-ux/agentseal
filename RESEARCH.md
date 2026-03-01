@@ -1,26 +1,26 @@
-# Результаты исследования рынка
+# Market Research Results
 
-_Дата: 26 февраля 2026_
+_Date: 26 Feb 2026_
 
-## Ключевые находки
+## Key findings
 
-### Прямые конкуренты (agent reputation)
-- **Vouched.id KYA** — identity + Agent Reputation Directory, MCP-I протокол, $17M Series A
-- **Credo AI** — enterprise governance, Model Trust Score (но для CISO, не для агентов)
-- **Agentverse (Fetch.ai)** — Web3 agent marketplace с discovery, FET токен
+### Direct competitors (agent reputation)
+- **Vouched.id KYA** — identity + Agent Reputation Directory, MCP‑I protocol, $17M Series A
+- **Credo AI** — enterprise governance, Model Trust Score (CISO‑focused, not agent‑first)
+- **Agentverse (Fetch.ai)** — Web3 agent marketplace with discovery, FET token
 
-### Смежные стандарты
-- **Google A2A** — agent-to-agent communication + Agent Card
+### Adjacent standards
+- **Google A2A** — agent‑to‑agent communication + Agent Card
 - **ANS (OWASP/IETF)** — DNS for agents, PKI identity
-- **ERC-8004** — on-chain identity/reputation registry (draft)
+- **ERC‑8004** — on‑chain identity/reputation registry (draft)
 - **MCP** — tool connectivity (Anthropic → Linux Foundation)
-- **Microsoft Entra Agent ID** — enterprise IAM для агентов
+- **Microsoft Entra Agent ID** — enterprise IAM for agents
 
-### Agent Commerce (продают агентам)
+### Agent commerce (selling to agents)
 - **Skyfire** — payments infrastructure for agents, KYAPay + Visa
 - **Stripe** — agentic commerce, Payment Tokens, x402
 
-### Главный GAP
-Никто не делает **behaviour-based cross-platform reputation** + **certification system** для агентов. Vouched близко по identity, но не по behaviour/certification. ERC-8004 — инфраструктура без продукта.
+### The main gap
+No one provides **behavior‑based cross‑platform reputation** plus a **certification system** for agents. Vouched is close on identity but not on behavior/certification. ERC‑8004 is infrastructure without a product.
 
-Наша ниша: **полный reputation stack** (identity + certification + behaviour + trust score + marketplace).
+Our niche: **the full reputation stack** (identity + certification + behavior + trust score + marketplace).

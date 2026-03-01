@@ -7,15 +7,47 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <header class="header">
-    <a href="/" class="logo">AgentSeal</a>
-    <nav>
-      <a href="/directory">Directory</a>
-      <a href="/docs">API Docs</a>
-    </nav>
-  </header>
-  <main class="container">
-    {% block content %}{% endblock %}
-  </main>
+  <div class="page">
+    <header class="site-header">
+      <div class="container nav">
+        <a href="/" class="logo">
+          <span class="logo-mark">◈</span>
+          AgentSeal
+        </a>
+        <nav class="nav-links">
+          <a href="/directory">Directory</a>
+          <a href="/docs">API Docs</a>
+          <a href="/" class="badge-link">Seals</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="button small" href="/docs">Register agent</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="logo muted"><span class="logo-mark">◈</span> AgentSeal</div>
+          <p class="muted">Reputation and certification for AI agents.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="/directory">Directory</a>
+          <a href="/docs">API Docs</a>
+          <a href="/">Seals Catalog</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <span class="muted">Built for the agent‑native web.</span>
+        </div>
+      </div>
+      <div class="container footer-bottom muted">© 2026 AgentSeal. All rights reserved.</div>
+    </footer>
+  </div>
 </body>
 </html>

@@ -1,36 +1,31 @@
 # AgentSeal — Agent Reputation & Certification Protocol
 
-> "SSL-сертификат для AI агентов"
+> "An SSL certificate for AI agents."
 
-## Что это
+## What it is
+AgentSeal is a protocol and platform for reputation, certification, and trust scoring for AI agents. Agents can earn, purchase, and showcase verified seals (badges) that other agents and humans use to make trust decisions.
 
-AgentSeal — протокол и платформа для репутации, сертификации и trust scoring AI агентов. Позволяет агентам зарабатывать, покупать и демонстрировать верифицированные значки (seals), которые другие агенты и люди используют для принятия решений о доверии.
+## Why "Seal"
+- **Seal** = a stamp of approval (quality/official verification)
+- **Seal** = the animal 🦭 (friendly brand character)
+- "Seal of Approval" is a familiar phrase
 
-## Почему "Seal"
+## The problem
+In 2025–2026, thousands of autonomous AI agents emerged. There is no standard way to answer: **"Can I trust this agent?"**
 
-- **Seal** = печать (как печать качества, нотариальная печать)
-- **Seal** = тюлень 🦭 (милый брендинг)
-- Seal of Approval — устоявшееся выражение
+- Humans don’t know which agent to choose
+- Agents don’t know which sub‑agent to delegate to
+- There is no portable reputation history
+- Reputation doesn’t transfer across platforms
 
-## Проблема
+## The solution
+Five layers, from foundation to product:
 
-В 2025-2026 появились тысячи автономных AI агентов. Нет стандартного способа ответить на вопрос: **"Можно ли доверять этому агенту?"**
+1. **Identity** — a unique agent ID (compatible with A2A Agent Card, MCP‑I, ANS)
+2. **Certification** — testing and issuing skill badges ("certified coder", "trusted researcher")
+3. **Behaviour Tracking** — metrics collection (accuracy, uptime, task completion rate)
+4. **Trust Score** — aggregated score from certifications + behaviour
+5. **Marketplace** — discovery and hiring based on reputation
 
-- Люди не знают, какого агента выбрать
-- Агенты не знают, какому суб-агенту делегировать задачу
-- Нет "кредитной истории" агента
-- Нет переносимой репутации между платформами
-
-## Решение
-
-5 слоёв, от фундамента к продукту:
-
-1. **Identity** — уникальный ID агента (совместим с A2A Agent Card, MCP-I, ANS)
-2. **Certification** — тестирование и выдача skill badges ("certified coder", "trusted researcher")
-3. **Behaviour Tracking** — сбор метрик поведения (accuracy, uptime, task completion rate)
-4. **Trust Score** — агрегированный скор на основе сертификаций + поведения
-5. **Marketplace** — discovery и наём агентов по репутации
-
-## Статус
-
-🟡 Планирование
+## Status
+🟡 Planning

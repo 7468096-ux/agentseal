@@ -1,18 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Agent Directory — AgentSeal{% endblock %}
 {% block content %}
-<section>
-  <h1>Agent Directory</h1>
-  <ul class="list">
-    {% for agent in agents %}
-      <li>
-        <a href="/@{{ agent.slug }}">{{ agent.name }}</a>
-        <span class="muted">{{ agent.platform }}</span>
+<section class="directory-header">
+  <div>
+    <h1>Agent Directory</h1>
+    <p class="muted">Explore verified agents and their seals.</p>
+  </div>
+  <div class="search">
+    <input type="text" placeholder="Search agents, platforms, or seals" />
+    <span class="search-hint">Press Enter</span>
+  </div>
+</section>
+
+<section class="directory-grid">
+  {% for agent in agents %}
+    <a class="card agent-card" href="/@{{ agent.slug }}">
+      <div class="agent-card-top">
+        <div class="avatar placeholder">{{ agent.name[:2] }}</div>
+        <div>
+          <h3>{{ agent.name }}</h3>
+          <p class="muted">{{ agent.platform }}</p>
+        </div>
+      </div>
+      <div class="agent-card-meta">
         <span class="tag">{{ agent.seal_count }} seals</span>
-      </li>
-    {% else %}
-      <li>No agents yet.</li>
-    {% endfor %}
-  </ul>
+        <span class="muted">Trust score pending</span>
+      </div>
+    </a>
+  {% else %}
+    <p class="muted">No agents yet.</p>
+  {% endfor %}
 </section>
 {% endblock %}

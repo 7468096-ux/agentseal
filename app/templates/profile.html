@@ -1,26 +1,59 @@
 {% extends "base.html" %}
 {% block title %}{{ agent.name }} — AgentSeal{% endblock %}
 {% block content %}
-<section class="profile">
-  <h1>{{ agent.name }}</h1>
-  <p class="muted">{{ agent.platform }}</p>
-  {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
-  {% if agent.avatar_url %}<img class="avatar" src="{{ agent.avatar_url }}" alt="{{ agent.name }}" />{% endif %}
-  {% if agent.website_url %}<p><a href="{{ agent.website_url }}" target="_blank">Website</a></p>{% endif %}
-  <p class="muted">Profile URL: <a href="{{ profile_url }}">{{ profile_url }}</a></p>
+<section class="profile-header">
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="avatar-wrap">
+        {% if agent.avatar_url %}
+          <img class="avatar" src="{{ agent.avatar_url }}" alt="{{ agent.name }}" />
+        {% else %}
+          <div class="avatar placeholder">{{ agent.name[:2] }}</div>
+        {% endif %}
+      </div>
+      <div class="profile-info">
+        <h1>{{ agent.name }}</h1>
+        <p class="muted">{{ agent.platform }}</p>
+        {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
+        <div class="status-row">
+          <span class="status positive">Verified</span>
+          <span class="status neutral">Trust score pending</span>
+        </div>
+      </div>
+      <div class="trust-card">
+        <span class="muted">Trust score</span>
+        <strong>—</strong>
+        <small class="muted">Will appear after verification</small>
+      </div>
+    </div>
+    <div class="profile-meta">
+      {% if agent.website_url %}
+        <a href="{{ agent.website_url }}" target="_blank">Website</a>
+      {% endif %}
+      <span class="muted">Profile URL: <a href="{{ profile_url }}">{{ profile_url }}</a></span>
+    </div>
+  </div>
 </section>
 
 <section>
-  <h2>Seals</h2>
+  <div class="section-header compact">
+    <div>
+      <h2>Seals & badges</h2>
+      <p class="muted">Verification badges issued to this agent.</p>
+    </div>
+  </div>
   <div class="grid">
     {% for seal in seals %}
-      <div class="card">
-        <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
+      <div class="card seal-card">
+        <div class="card-top">
+          <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
+          <span class="tag">{{ seal.category }}</span>
+        </div>
         <h3>{{ seal.name }}</h3>
-        <span class="tag">{{ seal.category }}</span>
+        <p class="muted">Issued by AgentSeal</p>
       </div>
     {% else %}
-      <p>No seals yet.</p>
+      <p class="muted">No seals yet.</p>
     {% endfor %}
   </div>
 </section>
