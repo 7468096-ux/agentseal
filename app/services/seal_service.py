@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.models import Agent, AgentSeal, Seal
 from app.services.payment_service import create_payment_stub
+from app.services.trust_service import recalculate_trust_score
 
 
 def price_display(cents: int) -> str:
@@ -63,6 +64,7 @@ async def issue_seal(session: AsyncSession, agent: Agent, seal_slug: str) -> dic
         agent_seal = AgentSeal(agent_id=agent.id, seal_id=seal.id)
         session.add(agent_seal)
         seal.issued_count += 1
+        await recalculate_trust_score(session, agent)
         return {
             "type": "free",
             "agent_seal": agent_seal,

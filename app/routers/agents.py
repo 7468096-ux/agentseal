@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +16,9 @@ from app.schemas.agent import (
     AgentUpdate,
     AgentSealSummary,
 )
+from app.schemas.trust import TrustScoreResponse
 from app.services.agent_service import create_agent, get_agent_by_id, get_agent_by_slug, profile_url, update_agent
+from app.services.trust_service import compute_trust_breakdown
 
 router = APIRouter(prefix="/v1/agents", tags=["agents"])
 
@@ -190,3 +193,112 @@ async def agent_card(agent_id: str, session: AsyncSession = Depends(get_session)
         capabilities={"seals": seal_slugs, "trust_score": None},
         authentication={"schemes": ["apiKey"]},
     )
+
+
+def _text_width(text: str, padding: int = 12) -> int:
+    return max(40, len(text) * 6 + padding)
+
+
+def _build_badge_svg(label: str, value: str, color: str) -> str:
+    left_width = _text_width(label)
+    right_width = _text_width(value)
+    total_width = left_width + right_width
+    height = 20
+    font_family = "Verdana,DejaVu Sans,sans-serif"
+    return (
+        f"<svg xmlns='http://www.w3.org/2000/svg' width='{total_width}' height='{height}' role='img'"
+        f" aria-label='{label}: {value}'>"
+        f"<rect width='{total_width}' height='{height}' rx='3' fill='#2f3641'/>"
+        f"<rect x='{left_width}' width='{right_width}' height='{height}' rx='3' fill='{color}'/>"
+        f"<text x='{left_width / 2}' y='14' fill='#fff' font-family='{font_family}' font-size='11'"
+        f" text-anchor='middle'>{label}</text>"
+        f"<text x='{left_width + right_width / 2}' y='14' fill='#fff' font-family='{font_family}'"
+        f" font-size='11' text-anchor='middle'>{value}</text>"
+        "</svg>"
+    )
+
+
+def _tier_color(tier: str) -> str:
+    palette = {
+        "gold": "#f59e0b",
+        "silver": "#9ca3af",
+        "bronze": "#d97706",
+        "platinum": "#e5e7eb",
+        "blue": "#3b82f6",
+        "green": "#22c55e",
+        "gray": "#6b7280",
+    }
+    return palette.get(tier, "#6b7280")
+
+
+async def _badge_label(session: AsyncSession, agent_id: str, owner_verified: bool) -> tuple[str, str]:
+    cert_result = await session.execute(
+        select(Seal)
+        .join(AgentSeal, AgentSeal.seal_id == Seal.id)
+        .where(
+            AgentSeal.agent_id == agent_id,
+            AgentSeal.revoked == False,
+            or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+            Seal.category == "certification",
+        )
+    )
+    cert_seals = cert_result.scalars().all()
+    if cert_seals:
+        tier_priority = {"gold": 3, "silver": 2, "bronze": 1}
+        cert_seals.sort(key=lambda seal: tier_priority.get(seal.tier or "", 0), reverse=True)
+        top = cert_seals[0]
+        stars = {"gold": "★★★", "silver": "★★", "bronze": "★"}.get(top.tier or "", "")
+        label = f"{top.name} {stars}".strip()
+        return label, _tier_color(top.tier or "gold")
+
+    if owner_verified:
+        return "Verified", _tier_color("green")
+
+    seal_count_result = await session.execute(
+        select(func.count())
+        .select_from(AgentSeal)
+        .where(
+            AgentSeal.agent_id == agent_id,
+            AgentSeal.revoked == False,
+            or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+        )
+    )
+    seal_count = seal_count_result.scalar_one() or 0
+    if seal_count > 0:
+        return f"{seal_count} seals", _tier_color("blue")
+
+    return "Unverified", _tier_color("gray")
+
+
+@router.get("/{agent_id}/trust", response_model=TrustScoreResponse)
+async def get_trust_score(agent_id: str, session: AsyncSession = Depends(get_session)):
+    agent = await get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    breakdown = await compute_trust_breakdown(session, agent)
+    return TrustScoreResponse(**breakdown)
+
+
+@router.get("/{agent_id}/badge.svg")
+async def agent_badge(agent_id: str, session: AsyncSession = Depends(get_session)):
+    agent = await get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    value, color = await _badge_label(session, agent.id, agent.owner_verified)
+    svg = _build_badge_svg("AgentSeal", value, color)
+    headers = {"Cache-Control": "public, max-age=3600"}
+    return Response(content=svg, media_type="image/svg+xml", headers=headers)
+
+
+@router.get("/by-slug/{slug}/badge.svg")
+async def agent_badge_by_slug(slug: str, session: AsyncSession = Depends(get_session)):
+    agent = await get_agent_by_slug(session, slug)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    value, color = await _badge_label(session, agent.id, agent.owner_verified)
+    svg = _build_badge_svg("AgentSeal", value, color)
+    headers = {"Cache-Control": "public, max-age=3600"}
+    return Response(content=svg, media_type="image/svg+xml", headers=headers)

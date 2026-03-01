@@ -178,7 +178,15 @@ main.container { flex: 1; padding: 48px 0 80px; }
 .profile-info h1 { margin: 0 0 6px; }
 .profile-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
 .status-row { display: flex; gap: 8px; margin-top: 12px; }
-.trust-card { background: var(--card-strong); padding: 16px 20px; border-radius: 16px; text-align: right; min-width: 160px; }
+.trust-card { background: var(--card-strong); padding: 16px 20px; border-radius: 16px; text-align: right; min-width: 180px; }
+.meter { margin-top: 10px; height: 6px; background: rgba(148, 163, 184, 0.2); border-radius: 999px; overflow: hidden; }
+.meter-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+
+.profile-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px; }
+.metric-card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 16px; }
+.metric-card h3 { margin: 0 0 10px; }
+.badge-preview { margin-bottom: 12px; }
+.embed-input { width: 100%; background: var(--card-strong); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 12px; }
 
 .avatar { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; }
 .avatar.placeholder { background: var(--card-strong); display: grid; place-items: center; font-weight: 700; text-transform: uppercase; }

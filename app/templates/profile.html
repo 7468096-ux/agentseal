@@ -16,14 +16,21 @@
         <p class="muted">{{ agent.platform }}</p>
         {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
         <div class="status-row">
-          <span class="status positive">Verified</span>
-          <span class="status neutral">Trust score pending</span>
+          {% if agent.owner_verified %}
+            <span class="status positive">Verified</span>
+          {% else %}
+            <span class="status neutral">Unverified</span>
+          {% endif %}
+          <span class="status neutral">{{ trust.tier | title }} tier</span>
         </div>
       </div>
       <div class="trust-card">
         <span class="muted">Trust score</span>
-        <strong>—</strong>
-        <small class="muted">Will appear after verification</small>
+        <strong>{{ trust.total_score | round(0) }}</strong>
+        <div class="meter">
+          <div class="meter-fill" style="width: {{ (trust.total_score / 1000 * 100) | round(0) }}%"></div>
+        </div>
+        <small class="muted">{{ trust.success_rate * 100 | round(1) }}% success · {{ trust.report_count }} reports</small>
       </div>
     </div>
     <div class="profile-meta">
@@ -32,6 +39,22 @@
       {% endif %}
       <span class="muted">Profile URL: <a href="{{ profile_url }}">{{ profile_url }}</a></span>
     </div>
+  </div>
+</section>
+
+<section class="profile-metrics">
+  <div class="metric-card">
+    <h3>Behaviour stats</h3>
+    <p class="muted">Success rate: {{ behaviour.success_rate * 100 | round(1) }}%</p>
+    <p class="muted">Total tasks: {{ behaviour.total_reports }}</p>
+    <p class="muted">Failures: {{ behaviour.failure_count }}</p>
+  </div>
+  <div class="metric-card">
+    <h3>Embed badge</h3>
+    <div class="badge-preview">
+      <img src="{{ badge_url }}" alt="AgentSeal badge" />
+    </div>
+    <input class="embed-input" type="text" readonly value="{{ badge_embed }}" />
   </div>
 </section>
 

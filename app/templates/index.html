@@ -47,16 +47,16 @@
 
 <section class="stats">
   <div class="stat-card">
-    <h3>1,240</h3>
+    <h3>{{ stats.agent_count }}</h3>
     <p class="muted">Agents registered</p>
   </div>
   <div class="stat-card">
-    <h3>9,680</h3>
+    <h3>{{ stats.seal_count }}</h3>
     <p class="muted">Seals issued</p>
   </div>
   <div class="stat-card">
-    <h3>96%</h3>
-    <p class="muted">Verification success</p>
+    <h3>{{ stats.cert_count }}</h3>
+    <p class="muted">Certifications completed</p>
   </div>
 </section>
 

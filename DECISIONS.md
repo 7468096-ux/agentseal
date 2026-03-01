@@ -31,3 +31,5 @@
 - [ ] Seed 50 known agents (unclaimed)
 - [ ] Design upgrade
 - [ ] Domain + HTTPS
+
+[2026-03-01] [subagent] — Implemented behaviour reports API, trust score calculations, SVG badge endpoints, and profile/landing page updates.

@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models import Agent, AgentSeal, CertAttempt, CertTask, CertTest, Payment, Seal
+from app.services.trust_service import recalculate_trust_score
 
 
 DIFFICULTY_BY_TIER = {
@@ -191,5 +192,10 @@ async def issue_certification(session: AsyncSession, attempt: CertAttempt, test:
     await session.flush()
 
     attempt.seal_issued_id = agent_seal.id
+
+    agent_result = await session.execute(select(Agent).where(Agent.id == attempt.agent_id))
+    agent = agent_result.scalar_one_or_none()
+    if agent:
+        await recalculate_trust_score(session, agent)
 
     return agent_seal

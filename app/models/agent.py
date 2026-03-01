@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Boolean, DateTime, String, Text, func, text
+from sqlalchemy import Boolean, DateTime, Float, String, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -19,6 +19,8 @@ class Agent(Base):
     owner_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     avatar_url: Mapped[str | None] = mapped_column(String(512))
     website_url: Mapped[str | None] = mapped_column(String(512))
+    trust_score: Mapped[float | None] = mapped_column(Float)
+    trust_tier: Mapped[str | None] = mapped_column(String(20))
     agent_metadata: Mapped[dict] = mapped_column("metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
@@ -27,6 +29,15 @@ class Agent(Base):
     api_keys = relationship("ApiKey", back_populates="agent", cascade="all, delete-orphan")
     seals = relationship("AgentSeal", back_populates="agent", cascade="all, delete-orphan")
     payments = relationship("Payment", back_populates="agent", cascade="all, delete-orphan")
+    behaviour_reports_received = relationship(
+        "BehaviourReport",
+        foreign_keys="BehaviourReport.subject_agent_id",
+        cascade="all, delete-orphan",
+    )
+    behaviour_reports_sent = relationship(
+        "BehaviourReport",
+        foreign_keys="BehaviourReport.reporter_agent_id",
+    )
     invite_codes_created = relationship(
         "InviteCode",
         back_populates="created_by_agent",
