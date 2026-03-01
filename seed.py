@@ -664,6 +664,327 @@ CERT_TESTS = [
 ]
 
 
+KNOWN_AGENTS = [
+    {
+        "name": "ChatGPT (OpenAI)",
+        "slug": "chatgpt",
+        "description": "OpenAI's flagship conversational model for general-purpose assistance, writing, and coding.",
+        "platform": "custom",
+    },
+    {
+        "name": "Claude (Anthropic)",
+        "slug": "claude",
+        "description": "Anthropic's conversational AI focused on helpful, safe, and long-context reasoning.",
+        "platform": "custom",
+    },
+    {
+        "name": "Gemini (Google)",
+        "slug": "gemini",
+        "description": "Google's multimodal AI assistant for chat, coding, and productivity across Google products.",
+        "platform": "custom",
+    },
+    {
+        "name": "Copilot (Microsoft)",
+        "slug": "copilot",
+        "description": "Microsoft's AI assistant integrated into Windows and Microsoft 365 for drafting and workflow help.",
+        "platform": "custom",
+    },
+    {
+        "name": "Perplexity AI",
+        "slug": "perplexity-ai",
+        "description": "Search-first AI assistant that answers questions with cited sources from the web.",
+        "platform": "custom",
+    },
+    {
+        "name": "Pi (Inflection AI)",
+        "slug": "pi",
+        "description": "Personal AI companion designed for empathetic conversation, coaching, and reflection.",
+        "platform": "custom",
+    },
+    {
+        "name": "Poe (Quora)",
+        "slug": "poe",
+        "description": "Quora's hub for chatting with multiple AI models and custom bots in one interface.",
+        "platform": "custom",
+    },
+    {
+        "name": "Character.ai",
+        "slug": "character-ai",
+        "description": "Platform for roleplay and character-based chatbots created by the community.",
+        "platform": "custom",
+    },
+    {
+        "name": "Jasper AI",
+        "slug": "jasper-ai",
+        "description": "Marketing-focused AI copywriter for content creation and brand messaging.",
+        "platform": "custom",
+    },
+    {
+        "name": "You.com",
+        "slug": "you-com",
+        "description": "AI-powered search and chat assistant integrated into the You.com search engine.",
+        "platform": "custom",
+    },
+    {
+        "name": "LangChain Agent",
+        "slug": "langchain-agent",
+        "description": "LangChain's agent framework for tool-using workflows and LLM orchestration.",
+        "platform": "langchain",
+    },
+    {
+        "name": "CrewAI Agent",
+        "slug": "crewai-agent",
+        "description": "Multi-agent orchestration framework for role-based AI teams and task handoffs.",
+        "platform": "crewai",
+    },
+    {
+        "name": "AutoGen Agent",
+        "slug": "autogen-agent",
+        "description": "Microsoft's AutoGen framework for multi-agent conversations and tool execution.",
+        "platform": "autogpt",
+    },
+    {
+        "name": "OpenAI Agents SDK",
+        "slug": "openai-agents-sdk",
+        "description": "OpenAI's SDK for building agentic workflows with tools, memory, and state.",
+        "platform": "custom",
+    },
+    {
+        "name": "LlamaIndex Agent",
+        "slug": "llamaindex-agent",
+        "description": "LlamaIndex agents for retrieval-augmented reasoning over private data.",
+        "platform": "custom",
+    },
+    {
+        "name": "Haystack Agent",
+        "slug": "haystack-agent",
+        "description": "deepset Haystack framework for building RAG and agent pipelines.",
+        "platform": "custom",
+    },
+    {
+        "name": "MetaGPT",
+        "slug": "metagpt",
+        "description": "Multi-role software agent framework that structures planning and code generation.",
+        "platform": "custom",
+    },
+    {
+        "name": "Semantic Kernel Agent",
+        "slug": "semantic-kernel-agent",
+        "description": "Microsoft Semantic Kernel agents for integrating LLMs with plugins and skills.",
+        "platform": "custom",
+    },
+    {
+        "name": "Rasa Agent",
+        "slug": "rasa-agent",
+        "description": "Rasa framework for building production-grade conversational AI assistants.",
+        "platform": "custom",
+    },
+    {
+        "name": "Swarm Agent",
+        "slug": "swarm-agent",
+        "description": "Lightweight multi-agent orchestration for handoffs and tool use in workflows.",
+        "platform": "custom",
+    },
+    {
+        "name": "GitHub Copilot",
+        "slug": "github-copilot",
+        "description": "AI pair programmer that suggests code and completions inside IDEs.",
+        "platform": "custom",
+    },
+    {
+        "name": "Cursor AI",
+        "slug": "cursor-ai",
+        "description": "AI-first code editor with chat, refactors, and inline code generation.",
+        "platform": "custom",
+    },
+    {
+        "name": "Devin (Cognition)",
+        "slug": "devin",
+        "description": "Autonomous software engineer agent that plans and executes coding tasks end-to-end.",
+        "platform": "custom",
+    },
+    {
+        "name": "Codex CLI (OpenAI)",
+        "slug": "codex-cli",
+        "description": "Command-line coding agent from OpenAI for editing, running, and reasoning about codebases.",
+        "platform": "custom",
+    },
+    {
+        "name": "Aider",
+        "slug": "aider",
+        "description": "Open-source AI pair programming tool that works via git-backed edits.",
+        "platform": "custom",
+    },
+    {
+        "name": "Continue.dev",
+        "slug": "continue-dev",
+        "description": "Open-source IDE extension for chat-based coding and custom model integration.",
+        "platform": "custom",
+    },
+    {
+        "name": "Tabnine",
+        "slug": "tabnine",
+        "description": "AI code completion assistant trained on permissively licensed code.",
+        "platform": "custom",
+    },
+    {
+        "name": "Codeium / Windsurf",
+        "slug": "codeium-windsurf",
+        "description": "Codeium's AI coding assistant and Windsurf IDE for autocomplete and chat.",
+        "platform": "custom",
+    },
+    {
+        "name": "Amazon Q Developer",
+        "slug": "amazon-q-developer",
+        "description": "AWS coding assistant for IDEs with cloud-aware suggestions and troubleshooting.",
+        "platform": "custom",
+    },
+    {
+        "name": "Replit Agent",
+        "slug": "replit-agent",
+        "description": "Replit's AI agent that builds and edits apps directly in the Replit workspace.",
+        "platform": "custom",
+    },
+    {
+        "name": "AutoGPT",
+        "slug": "autogpt",
+        "description": "Autonomous agent that chains tasks, tools, and memory to achieve goals.",
+        "platform": "autogpt",
+    },
+    {
+        "name": "BabyAGI",
+        "slug": "babyagi",
+        "description": "Task-driven autonomous agent that decomposes goals and iterates on sub-tasks.",
+        "platform": "custom",
+    },
+    {
+        "name": "AgentGPT",
+        "slug": "agentgpt",
+        "description": "Browser-based autonomous agent that runs multi-step tasks with tool access.",
+        "platform": "custom",
+    },
+    {
+        "name": "SuperAGI",
+        "slug": "superagi",
+        "description": "Open-source autonomous agent framework with tools, agents, and workflow management.",
+        "platform": "custom",
+    },
+    {
+        "name": "Fixie.ai",
+        "slug": "fixie-ai",
+        "description": "Platform for building task-specific agents with connectors and tooling.",
+        "platform": "custom",
+    },
+    {
+        "name": "Adept AI",
+        "slug": "adept-ai",
+        "description": "Agents trained to use software and perform actions across apps and websites.",
+        "platform": "custom",
+    },
+    {
+        "name": "Lindy.ai",
+        "slug": "lindy-ai",
+        "description": "Personal workflow automation agent for email, calendar, and operations tasks.",
+        "platform": "custom",
+    },
+    {
+        "name": "Relevance AI",
+        "slug": "relevance-ai",
+        "description": "Platform for building business agents and automation workflows.",
+        "platform": "custom",
+    },
+    {
+        "name": "Beam AI",
+        "slug": "beam-ai",
+        "description": "Agent platform for automating knowledge work with integrations and tools.",
+        "platform": "custom",
+    },
+    {
+        "name": "Cognosys",
+        "slug": "cognosys",
+        "description": "Autonomous agent system focused on goal execution and workflow automation.",
+        "platform": "custom",
+    },
+    {
+        "name": "Midjourney",
+        "slug": "midjourney",
+        "description": "AI image generation system known for stylized artwork via Discord.",
+        "platform": "custom",
+    },
+    {
+        "name": "DALL-E",
+        "slug": "dall-e",
+        "description": "OpenAI's text-to-image model for generating and editing images.",
+        "platform": "custom",
+    },
+    {
+        "name": "Suno AI",
+        "slug": "suno-ai",
+        "description": "AI music generation platform for creating songs from text prompts.",
+        "platform": "custom",
+    },
+    {
+        "name": "ElevenLabs",
+        "slug": "elevenlabs",
+        "description": "AI voice synthesis platform for realistic speech, voice cloning, and dubbing.",
+        "platform": "custom",
+    },
+    {
+        "name": "RunwayML",
+        "slug": "runwayml",
+        "description": "Creative AI suite for video generation, editing, and media workflows.",
+        "platform": "custom",
+    },
+    {
+        "name": "Harvey AI (legal)",
+        "slug": "harvey-ai",
+        "description": "Legal AI assistant for research, drafting, and contract analysis.",
+        "platform": "custom",
+    },
+    {
+        "name": "Synthesia",
+        "slug": "synthesia",
+        "description": "AI video avatar platform for generating presentations and explainers.",
+        "platform": "custom",
+    },
+    {
+        "name": "Notion AI",
+        "slug": "notion-ai",
+        "description": "Writing and productivity assistant built into Notion.",
+        "platform": "custom",
+    },
+    {
+        "name": "Otter.ai",
+        "slug": "otter-ai",
+        "description": "Meeting transcription and note-taking assistant with summaries and highlights.",
+        "platform": "custom",
+    },
+    {
+        "name": "Fireflies.ai",
+        "slug": "fireflies-ai",
+        "description": "AI meeting assistant that records, transcribes, and extracts action items.",
+        "platform": "custom",
+    },
+]
+
+
+async def seed_known_agents(session):
+    registered_seal = await session.execute(select(Seal).where(Seal.slug == "registered"))
+    seal = registered_seal.scalar_one_or_none()
+    if not seal:
+        return
+
+    for agent_data in KNOWN_AGENTS:
+        existing = await session.execute(select(Agent).where(Agent.slug == agent_data["slug"]))
+        if existing.scalar_one_or_none():
+            continue
+
+        agent = Agent(**agent_data, owner_verified=False)
+        session.add(agent)
+        await session.flush()
+        session.add(AgentSeal(agent_id=agent.id, seal_id=seal.id))
+
+
 async def seed():
     async with AsyncSessionLocal() as session:
         for seal_data in SEALS:
@@ -706,6 +1027,8 @@ async def seed():
             )
             if not existing.scalar_one_or_none():
                 session.add(AgentSeal(agent_id=alice.id, seal_id=seal.id))
+
+        await seed_known_agents(session)
 
         existing_invites = await session.execute(select(InviteCode).where(InviteCode.created_by == alice.id))
         if len(existing_invites.scalars().all()) < 5:
