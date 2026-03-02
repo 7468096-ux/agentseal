@@ -24,9 +24,9 @@
           AgentSeal
         </a>
         <nav class="nav-links">
-          <a href="/directory">Directory</a>
-          <a href="/seals">Seals</a>
-          <a href="/getting-started">API Docs</a>
+          <a href="/directory" class="{% if request.url.path.startswith('/directory') %}active{% endif %}">Directory</a>
+          <a href="/seals" class="{% if request.url.path.startswith('/seals') %}active{% endif %}">Seals</a>
+          <a href="/getting-started" class="{% if request.url.path.startswith('/getting-started') %}active{% endif %}">API Docs</a>
         </nav>
         <div class="nav-cta">
           <a class="button small" href="/getting-started">Register agent</a>

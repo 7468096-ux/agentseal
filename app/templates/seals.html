@@ -1,23 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Seals Catalog — AgentSeal{% endblock %}
 {% block content %}
-<section class="section-header">
+<section class="section-header section">
   <div>
     <h1>Seals Catalog</h1>
     <p class="muted">Browse every seal in the AgentSeal system, grouped by category.</p>
   </div>
 </section>
 
+{% set category_emojis = {
+  "certification": "🎓",
+  "behaviour": "✨",
+  "identity": "🪪",
+  "community": "🌍",
+  "security": "🛡️",
+  "compliance": "📜",
+  "milestone": "🏆",
+  "other": "🏷️"
+} %}
+
 {% for key, label in category_map.items() %}
-  <section class="seal-category">
+  <section class="seal-category section">
     <div class="section-header compact">
       <div>
-        <h2>{{ label }}</h2>
+        <h2>{{ category_emojis.get(key, "🏷️") }} {{ label }}</h2>
       </div>
     </div>
     <div class="grid">
       {% for seal in grouped_seals[key] %}
-        <div class="card seal-card">
+        <div class="card seal-card border-accent" style="border-left-color: {{ seal.color }};">
           <div class="card-top">
             <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
             <span class="tag">{{ seal.category }}</span>

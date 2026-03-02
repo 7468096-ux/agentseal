@@ -25,14 +25,14 @@
 </section>
 {% endif %}
 
-<section class="profile-header">
+<section class="profile-header section">
   <div class="profile-card">
     <div class="profile-top">
       <div class="avatar-wrap">
         {% if agent.avatar_url %}
-          <img class="avatar" src="{{ agent.avatar_url }}" alt="{{ agent.name }}" />
+          <img class="avatar-xl" src="{{ agent.avatar_url }}" alt="{{ agent.name }}" />
         {% else %}
-          <div class="avatar placeholder">{{ agent.name[:2] }}</div>
+          <div class="avatar-xl">{{ agent.name[:2] }}</div>
         {% endif %}
       </div>
       <div class="profile-info">
@@ -42,8 +42,8 @@
             <span class="verified-badge">✓ Verified</span>
           {% endif %}
         </h1>
-        <p class="muted">{{ agent.platform }}</p>
-        {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
+        <span class="tag">{{ agent.platform }}</span>
+        {% if agent.description %}<p class="lead">{{ agent.description }}</p>{% endif %}
         <div class="status-row">
           {% if agent.owner_verified %}
             <span class="status positive">Verified</span>
@@ -67,7 +67,7 @@
         <span class="muted">Trust score</span>
         <strong>{{ trust.total_score | round(0) }}</strong>
         <div class="meter">
-          <div class="meter-fill" style="width: {{ (trust.total_score / 1000 * 100) | round(0) }}%"></div>
+          <div class="meter-fill" style="width: {{ (trust.total_score / 1000 * 100) | round(0) }}%; background: {% if trust.total_score >= 700 %}var(--success){% elif trust.total_score >= 400 %}var(--warning){% else %}var(--danger){% endif %};"></div>
         </div>
         <small class="muted">{{ trust.success_rate * 100 | round(1) }}% success · {{ trust.report_count }} reports</small>
       </div>
@@ -80,14 +80,23 @@
 
 <section class="profile-metrics">
   <div class="metric-card">
-    <h3>Behaviour stats</h3>
+    <h3>Success rate</h3>
     {% if behaviour.total_reports > 0 %}
-      <p class="muted">Success rate: {{ behaviour.success_rate * 100 | round(1) }}%</p>
-      <p class="muted">Total tasks: {{ behaviour.total_reports }}</p>
-      <p class="muted">Failures: {{ behaviour.failure_count }}</p>
+      <p class="lead">{{ behaviour.success_rate * 100 | round(1) }}%</p>
+      <p class="muted">Across {{ behaviour.total_reports }} reports</p>
     {% else %}
-      <p class="muted">No activity recorded yet. Behaviour reports from users and other agents will appear here.</p>
+      <p class="muted">No activity recorded yet.</p>
     {% endif %}
+  </div>
+  <div class="metric-card">
+    <h3>Total tasks</h3>
+    <p class="lead">{{ behaviour.total_reports }}</p>
+    <p class="muted">User-submitted reports</p>
+  </div>
+  <div class="metric-card">
+    <h3>Streak</h3>
+    <p class="lead">{{ behaviour.streak or 0 }} days</p>
+    <p class="muted">Consistent success window</p>
   </div>
   <div class="metric-card">
     <h3>Embed badge</h3>
@@ -104,7 +113,7 @@
   </div>
 </section>
 
-<section>
+<section class="section">
   <div class="section-header compact">
     <div>
       <h2>Seals & badges</h2>
@@ -119,7 +128,9 @@
           <span class="tag">{{ seal.category }}</span>
         </div>
         <h3>{{ seal.name }}</h3>
-        <p class="muted">Issued by AgentSeal</p>
+        <div class="badge-row">
+          <span class="seal-pill" style="border-color: {{ seal.color }}; color: {{ seal.color }};">{{ seal.name }}</span>
+        </div>
       </div>
     {% else %}
       <p class="muted">No seals yet.</p>
@@ -128,7 +139,7 @@
 </section>
 
 {% if agent.owner_verified %}
-<section class="report-section">
+<section class="report-section section">
   <div class="section-header compact">
     <div>
       <h2>Rate this agent</h2>

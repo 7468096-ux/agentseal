@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Getting Started — AgentSeal{% endblock %}
 {% block content %}
-<section class="section-header">
+<section class="section-header section">
   <div>
     <h1>Getting started with AgentSeal</h1>
     <p class="muted">Register your agent, get an API key, and start collecting trust signals.</p>
   </div>
 </section>
 
-<section class="doc-section">
-  <h2>Quick start</h2>
-  <p class="muted">Register a new agent with your invite code. You'll receive an API key in the response.</p>
-  <pre class="code-block">curl -X POST https://agentseal.io/v1/agents \
+<section class="section">
+  <div class="step-list">
+    <div class="step-item">
+      <div class="step-number">1</div>
+      <div>
+        <h2>Quick start</h2>
+        <p class="muted">Register a new agent with your invite code. You'll receive an API key in the response.</p>
+        <pre class="code-block">curl -X POST https://agentseal.io/v1/agents \
   -H "Content-Type: application/json" \
   -d '{
     "name": "My Agent",
@@ -19,43 +23,49 @@
     "description": "Does helpful things",
     "invite_code": "invite_XXXX"
   }'</pre>
-</section>
-
-<section class="doc-section">
-  <h2>Authentication</h2>
-  <p class="muted">API keys are required for write actions. Send them as <code>X-API-Key</code> or <code>Authorization: Bearer</code>.</p>
-  <pre class="code-block">curl -H "X-API-Key: as_live_..." https://agentseal.io/v1/agents/{agent_id}</pre>
-</section>
-
-<section class="doc-section">
-  <h2>Endpoints overview</h2>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Method</th>
-          <th>Endpoint</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>POST</td><td>/v1/agents</td><td>Register a new agent</td></tr>
-        <tr><td>GET</td><td>/v1/agents/{agent_id}</td><td>Get agent profile</td></tr>
-        <tr><td>GET</td><td>/v1/agents/by-slug/{slug}</td><td>Lookup by slug</td></tr>
-        <tr><td>PATCH</td><td>/v1/agents/{agent_id}</td><td>Update agent profile</td></tr>
-        <tr><td>POST</td><td>/v1/agents/{agent_id}/claim</td><td>Claim an unverified agent</td></tr>
-        <tr><td>GET</td><td>/v1/seals</td><td>List seals</td></tr>
-        <tr><td>POST</td><td>/v1/agents/{agent_id}/seals</td><td>Issue a seal</td></tr>
-        <tr><td>POST</td><td>/v1/certify</td><td>Start certification attempt</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<section class="doc-section">
-  <h2>Python SDK example</h2>
-  <p class="muted">Install the lightweight SDK and register your agent programmatically.</p>
-  <pre class="code-block">from agentseal import AgentSealClient
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-number">2</div>
+      <div>
+        <h2>Authentication</h2>
+        <p class="muted">API keys are required for write actions. Send them as <code>X-API-Key</code> or <code>Authorization: Bearer</code>.</p>
+        <pre class="code-block">curl -H "X-API-Key: as_live_..." https://agentseal.io/v1/agents/{agent_id}</pre>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-number">3</div>
+      <div>
+        <h2>Endpoints overview</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>POST</td><td>/v1/agents</td><td>Register a new agent</td></tr>
+              <tr><td>GET</td><td>/v1/agents/{agent_id}</td><td>Get agent profile</td></tr>
+              <tr><td>GET</td><td>/v1/agents/by-slug/{slug}</td><td>Lookup by slug</td></tr>
+              <tr><td>PATCH</td><td>/v1/agents/{agent_id}</td><td>Update agent profile</td></tr>
+              <tr><td>POST</td><td>/v1/agents/{agent_id}/claim</td><td>Claim an unverified agent</td></tr>
+              <tr><td>GET</td><td>/v1/seals</td><td>List seals</td></tr>
+              <tr><td>POST</td><td>/v1/agents/{agent_id}/seals</td><td>Issue a seal</td></tr>
+              <tr><td>POST</td><td>/v1/certify</td><td>Start certification attempt</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-number">4</div>
+      <div>
+        <h2>Python SDK example</h2>
+        <p class="muted">Install the lightweight SDK and register your agent programmatically.</p>
+        <pre class="code-block">from agentseal import AgentSealClient
 
 client = AgentSealClient(api_key="as_live_...")
 agent = client.register_agent(
@@ -65,11 +75,16 @@ agent = client.register_agent(
     invite_code="invite_XXXX",
 )
 print(agent.profile_url)</pre>
-</section>
-
-<section class="doc-section">
-  <h2>Badge embed</h2>
-  <p class="muted">Display your trust badge in a README or landing page.</p>
-  <pre class="code-block">&lt;img src="https://agentseal.io/v1/agents/by-slug/{slug}/badge.svg" alt="AgentSeal badge" /&gt;</pre>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-number">5</div>
+      <div>
+        <h2>Badge embed</h2>
+        <p class="muted">Display your trust badge in a README or landing page.</p>
+        <pre class="code-block">&lt;img src="https://agentseal.io/v1/agents/by-slug/{slug}/badge.svg" alt="AgentSeal badge" /&gt;</pre>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}
