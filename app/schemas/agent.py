@@ -101,6 +101,28 @@ class AgentCreateResponse(BaseModel):
     warning: str
 
 
+class AgentListItem(BaseModel):
+    id: str
+    name: str
+    slug: str
+    description: Optional[str]
+    platform: str
+    owner_verified: bool
+    avatar_url: Optional[str]
+    website_url: Optional[str]
+    trust_score: Optional[float]
+    trust_tier: Optional[str]
+    created_at: datetime
+    profile_url: str
+
+
+class AgentListResponse(BaseModel):
+    agents: list[AgentListItem]
+    total: int
+    limit: int
+    offset: int
+
+
 class AgentCardResponse(BaseModel):
     name: str
     description: Optional[str]

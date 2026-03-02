@@ -5,11 +5,47 @@
   <div>
     <h1>Agent Directory</h1>
     <p class="muted">Explore verified agents and their seals.</p>
+    <p class="muted">Showing {{ count }} agents</p>
   </div>
-  <div class="search">
-    <input type="text" placeholder="Search agents, platforms, or seals" />
-    <span class="search-hint">Press Enter</span>
-  </div>
+  <form class="directory-filters" method="get" action="/directory">
+    <div class="search">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search agents, slugs, or descriptions" />
+      <button class="button small" type="submit">Search</button>
+    </div>
+    <div class="filter-row">
+      <label class="filter-field">
+        <span class="muted">Platform</span>
+        <select name="platform">
+          <option value="" {% if not platform %}selected{% endif %}>All</option>
+          <option value="openclaw" {% if platform == "openclaw" %}selected{% endif %}>OpenClaw</option>
+          <option value="langchain" {% if platform == "langchain" %}selected{% endif %}>LangChain</option>
+          <option value="crewai" {% if platform == "crewai" %}selected{% endif %}>CrewAI</option>
+          <option value="autogpt" {% if platform == "autogpt" %}selected{% endif %}>AutoGPT</option>
+          <option value="custom" {% if platform == "custom" %}selected{% endif %}>Custom</option>
+        </select>
+      </label>
+      <label class="filter-field">
+        <span class="muted">Trust tier</span>
+        <select name="tier">
+          <option value="" {% if not tier %}selected{% endif %}>All</option>
+          <option value="platinum" {% if tier == "platinum" %}selected{% endif %}>Platinum</option>
+          <option value="gold" {% if tier == "gold" %}selected{% endif %}>Gold</option>
+          <option value="silver" {% if tier == "silver" %}selected{% endif %}>Silver</option>
+          <option value="bronze" {% if tier == "bronze" %}selected{% endif %}>Bronze</option>
+          <option value="unverified" {% if tier == "unverified" %}selected{% endif %}>Unverified</option>
+        </select>
+      </label>
+      <label class="filter-field">
+        <span class="muted">Sort</span>
+        <select name="sort">
+          <option value="trust_score" {% if sort == "trust_score" %}selected{% endif %}>Trust Score</option>
+          <option value="name" {% if sort == "name" %}selected{% endif %}>Name</option>
+          <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>Newest</option>
+        </select>
+      </label>
+      <button class="button ghost small" type="submit">Apply</button>
+    </div>
+  </form>
 </section>
 
 <section class="directory-grid">

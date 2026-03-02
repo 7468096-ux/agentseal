@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import func, select
+from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi.responses import RedirectResponse
+from pydantic import EmailStr
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -48,6 +50,53 @@ async def submit_report_endpoint(
         weight=report.weight,
         created_at=report.created_at,
     )
+
+
+@router.post("/{agent_id}/public-report")
+async def submit_public_report(
+    agent_id: str,
+    email: EmailStr = Form(...),
+    outcome: str = Form(...),
+    report_type: str = Form(...),
+    comment: str | None = Form(None),
+    session: AsyncSession = Depends(get_session),
+):
+    subject_agent = await get_agent_by_id(session, agent_id)
+    if not subject_agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    normalized_email = email.strip().lower()
+    email_field = BehaviourReport.details["email"].astext
+    count_result = await session.execute(
+        select(func.count())
+        .select_from(BehaviourReport)
+        .where(
+            BehaviourReport.reporter_type == "user",
+            func.lower(email_field) == normalized_email,
+            BehaviourReport.created_at >= func.now() - text("interval '1 day'"),
+        )
+    )
+    if (count_result.scalar_one() or 0) >= 5:
+        raise HTTPException(status_code=429, detail="rate limit exceeded")
+
+    details = {"email": normalized_email}
+    if comment and comment.strip():
+        details["comment"] = comment.strip()
+
+    report = await submit_report(
+        session,
+        subject_agent,
+        None,
+        {
+            "reporter_type": "user",
+            "report_type": report_type,
+            "outcome": outcome,
+            "details": details,
+        },
+    )
+    await session.commit()
+
+    return RedirectResponse(url=f"/@{subject_agent.slug}?reported=1", status_code=303)
 
 
 @router.get("/{agent_id}/reports", response_model=BehaviourReportListResponse)

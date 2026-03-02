@@ -23,6 +23,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     return await call_next(request)
                 if path.startswith("/v1/agents/") and path.endswith("/claim"):
                     return await call_next(request)
+                if path.startswith("/v1/agents/") and path.endswith("/public-report"):
+                    return await call_next(request)
                 if path.startswith("/v1/claims/") and path.endswith("/approve"):
                     return await call_next(request)
 

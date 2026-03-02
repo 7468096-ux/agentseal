@@ -12,9 +12,16 @@
 <section class="claim-banner">
   <div>
     <strong>⚠️ This profile is unclaimed.</strong>
-    <span class="muted">Are you the owner?</span>
+    <p class="muted">This agent profile was created by AgentSeal. If you are the developer or owner, you can claim this profile to manage it, add details, and build trust.</p>
   </div>
   <a class="button small" href="/claim/{{ agent.id }}">Claim this agent</a>
+</section>
+{% endif %}
+
+{% if reported %}
+<section class="notice success">
+  <strong>Report submitted.</strong>
+  <span class="muted">Thanks for helping keep AgentSeal accurate.</span>
 </section>
 {% endif %}
 
@@ -32,7 +39,7 @@
         <h1>
           {{ agent.name }}
           {% if agent.owner_verified %}
-            <span class="verified-badge">Verified ✓</span>
+            <span class="verified-badge">✓ Verified</span>
           {% endif %}
         </h1>
         <p class="muted">{{ agent.platform }}</p>
@@ -45,6 +52,16 @@
           {% endif %}
           <span class="status neutral">{{ trust.tier | title }} tier</span>
         </div>
+        <div class="profile-actions">
+          {% if agent.website_url %}
+            <a href="{{ agent.website_url }}" target="_blank" rel="noopener noreferrer" class="button primary">
+              Visit Agent →
+            </a>
+          {% endif %}
+          {% if agent.owner_verified and agent.owner_email %}
+            <p class="muted">Contact: {{ agent.owner_email }}</p>
+          {% endif %}
+        </div>
       </div>
       <div class="trust-card">
         <span class="muted">Trust score</span>
@@ -56,9 +73,6 @@
       </div>
     </div>
     <div class="profile-meta">
-      {% if agent.website_url %}
-        <a href="{{ agent.website_url }}" target="_blank" rel="noopener noreferrer">Website</a>
-      {% endif %}
       <span class="muted">Profile URL: <a href="{{ profile_url }}">{{ profile_url }}</a></span>
     </div>
   </div>
@@ -72,7 +86,7 @@
       <p class="muted">Total tasks: {{ behaviour.total_reports }}</p>
       <p class="muted">Failures: {{ behaviour.failure_count }}</p>
     {% else %}
-      <p class="muted">No activity yet.</p>
+      <p class="muted">No activity recorded yet. Behaviour reports from users and other agents will appear here.</p>
     {% endif %}
   </div>
   <div class="metric-card">
@@ -112,6 +126,47 @@
     {% endfor %}
   </div>
 </section>
+
+{% if agent.owner_verified %}
+<section class="report-section">
+  <div class="section-header compact">
+    <div>
+      <h2>Rate this agent</h2>
+      <p class="muted">Share your experience to help others evaluate this agent.</p>
+    </div>
+  </div>
+  <form class="report-form" method="post" action="/v1/agents/{{ agent.id }}/public-report">
+    <div class="report-grid">
+      <label>
+        <span class="muted">Outcome</span>
+        <select name="outcome" required>
+          <option value="success">Success</option>
+          <option value="failure">Failure</option>
+          <option value="partial">Partial</option>
+        </select>
+      </label>
+      <label>
+        <span class="muted">Task type</span>
+        <select name="report_type" required>
+          <option value="task_completion">Task Completion</option>
+          <option value="error">Error</option>
+          <option value="feedback">Feedback</option>
+          <option value="hallucination">Hallucination</option>
+        </select>
+      </label>
+    </div>
+    <label>
+      <span class="muted">Comment</span>
+      <textarea name="comment" rows="4" placeholder="Share details to help validate this report."></textarea>
+    </label>
+    <label>
+      <span class="muted">Your email</span>
+      <input type="email" name="email" placeholder="you@example.com" required />
+    </label>
+    <button class="button" type="submit">Submit Report</button>
+  </form>
+</section>
+{% endif %}
 
 <script>
   const copyButton = document.getElementById("copy-badge");

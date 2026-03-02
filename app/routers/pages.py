@@ -125,6 +125,7 @@ async def profile(slug: str, request: Request, session: AsyncSession = Depends(g
     behaviour_stats = await get_agent_stats(session, str(agent.id))
 
     badge_url = f"{settings.app_url}/v1/agents/by-slug/{agent.slug}/badge.svg"
+    reported = request.query_params.get("reported") == "1"
 
     return templates.TemplateResponse(
         "profile.html",
@@ -137,27 +138,60 @@ async def profile(slug: str, request: Request, session: AsyncSession = Depends(g
             "behaviour": behaviour_stats,
             "badge_url": badge_url,
             "badge_embed": f"<img src=\"{badge_url}\" alt=\"AgentSeal badge\" />",
+            "reported": reported,
         },
     )
 
 
 @router.get("/directory", response_class=HTMLResponse)
 async def directory(request: Request, session: AsyncSession = Depends(get_session)):
-    counts = (
-        await session.execute(
-            select(Agent, func.count(AgentSeal.id).label("seal_count"))
-            .outerjoin(
-                AgentSeal,
-                (
-                    (Agent.id == AgentSeal.agent_id)
-                    & (AgentSeal.revoked == False)
-                    & (or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()))
-                ),
-            )
-            .group_by(Agent.id)
-            .order_by(func.count(AgentSeal.id).desc())
+    q = request.query_params.get("q")
+    platform = request.query_params.get("platform")
+    tier = request.query_params.get("tier")
+    sort = request.query_params.get("sort") or "trust_score"
+    try:
+        limit = int(request.query_params.get("limit", 50))
+    except (TypeError, ValueError):
+        limit = 50
+    try:
+        offset = int(request.query_params.get("offset", 0))
+    except (TypeError, ValueError):
+        offset = 0
+
+    limit = min(max(limit, 1), 100)
+    offset = max(offset, 0)
+
+    filters = [Agent.is_active == True]
+    if q:
+        query = f"%{q.strip()}%"
+        filters.append(or_(Agent.name.ilike(query), Agent.slug.ilike(query), Agent.description.ilike(query)))
+    if platform:
+        filters.append(Agent.platform == platform)
+    if tier:
+        filters.append(Agent.trust_tier == tier)
+
+    statement = (
+        select(Agent, func.count(AgentSeal.id).label("seal_count"))
+        .outerjoin(
+            AgentSeal,
+            (
+                (Agent.id == AgentSeal.agent_id)
+                & (AgentSeal.revoked == False)
+                & (or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()))
+            ),
         )
-    ).all()
+        .where(*filters)
+        .group_by(Agent.id)
+    )
+
+    if sort == "name":
+        statement = statement.order_by(Agent.name.asc())
+    elif sort == "created_at":
+        statement = statement.order_by(Agent.created_at.desc())
+    else:
+        statement = statement.order_by(Agent.trust_score.desc().nullslast(), Agent.created_at.desc())
+
+    counts = (await session.execute(statement.offset(offset).limit(limit))).all()
 
     agents = [
         {
@@ -173,7 +207,15 @@ async def directory(request: Request, session: AsyncSession = Depends(get_sessio
 
     return templates.TemplateResponse(
         "directory.html",
-        {"request": request, "agents": agents},
+        {
+            "request": request,
+            "agents": agents,
+            "count": len(agents),
+            "q": q or "",
+            "platform": platform or "",
+            "tier": tier or "",
+            "sort": sort,
+        },
     )
 
 

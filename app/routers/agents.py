@@ -8,11 +8,13 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import AgentSeal, Seal, ClaimRequest
+from app.models import Agent, AgentSeal, Seal, ClaimRequest
 from app.schemas.agent import (
     AgentCardResponse,
     AgentCreate,
     AgentCreateResponse,
+    AgentListItem,
+    AgentListResponse,
     AgentProfileResponse,
     AgentResponse,
     AgentUpdate,
@@ -88,6 +90,63 @@ async def register_agent(payload: AgentCreate, session: AsyncSession = Depends(g
         profile_url=profile_url(agent.slug),
     )
     return AgentCreateResponse(agent=response, api_key=api_key, warning="Save this API key — it will not be shown again.")
+
+
+@router.get("", response_model=AgentListResponse)
+async def list_agents(
+    q: str | None = None,
+    platform: str | None = None,
+    tier: str | None = None,
+    sort: str = "trust_score",
+    limit: int = 50,
+    offset: int = 0,
+    session: AsyncSession = Depends(get_session),
+):
+    limit = min(max(limit, 1), 100)
+    offset = max(offset, 0)
+
+    filters = [Agent.is_active == True]
+    if q:
+        query = f"%{q.strip()}%"
+        filters.append(or_(Agent.name.ilike(query), Agent.slug.ilike(query), Agent.description.ilike(query)))
+    if platform:
+        filters.append(Agent.platform == platform)
+    if tier:
+        filters.append(Agent.trust_tier == tier)
+
+    total_result = await session.execute(select(func.count()).select_from(Agent).where(*filters))
+    total = total_result.scalar_one() or 0
+
+    statement = select(Agent).where(*filters)
+    if sort == "name":
+        statement = statement.order_by(Agent.name.asc())
+    elif sort == "created_at":
+        statement = statement.order_by(Agent.created_at.desc())
+    else:
+        statement = statement.order_by(Agent.trust_score.desc().nullslast(), Agent.created_at.desc())
+
+    result = await session.execute(statement.offset(offset).limit(limit))
+    agents = result.scalars().all()
+
+    items = [
+        AgentListItem(
+            id=str(agent.id),
+            name=agent.name,
+            slug=agent.slug,
+            description=agent.description,
+            platform=agent.platform,
+            owner_verified=agent.owner_verified,
+            avatar_url=agent.avatar_url,
+            website_url=agent.website_url,
+            trust_score=agent.trust_score,
+            trust_tier=agent.trust_tier,
+            created_at=agent.created_at,
+            profile_url=profile_url(agent.slug),
+        )
+        for agent in agents
+    ]
+
+    return AgentListResponse(agents=items, total=total, limit=limit, offset=offset)
 
 
 @router.get("/{agent_id}", response_model=AgentProfileResponse)
