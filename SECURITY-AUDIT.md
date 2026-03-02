@@ -1,13 +1,26 @@
 # Security Audit — AgentSeal
 
-Date: 2026-03-01
-Scope: Full codebase under `app/` + configuration files + dependencies
+Date: 2026-03-02
+Scope: Full codebase under `app/` + configuration files + dependencies (Sprint 4 additions included)
 
 ## Summary
-- **Critical/High fixed:** CORS misconfiguration (wildcard origins + credentials). Now configurable via env, with credentials off by default.
+- **High fixed:** Certification attempt re-submission allowed score gaming. Now blocked after first submit.
+- **High fixed (prior):** CORS misconfiguration (wildcard origins + credentials). Now configurable via env, with credentials off by default.
 - Other findings are MEDIUM/LOW with recommended remediations below.
 
 ## Findings
+
+### HIGH — Certification attempt can be re-submitted (fixed)
+**Location:** `app/routers/certification.py`
+
+**Issue:** `/v1/attempts/{attempt_id}/submit` accepted multiple submissions, letting users iterate answers until they pass and effectively bypassing assessment integrity.
+
+**Fix applied:** Reject submissions when `attempt.status == "completed"`.
+
+**Recommendation:**
+- Consider locking attempts server-side and adding an idempotency token if retry behavior is needed.
+
+---
 
 ### HIGH — CORS misconfiguration (fixed)
 **Location:** `app/main.py`
@@ -62,6 +75,58 @@ Scope: Full codebase under `app/` + configuration files + dependencies
 
 **Recommendation:**
 - Use `AnyUrl`/`HttpUrl` from Pydantic for URL validation.
+
+---
+
+### MEDIUM — Public report endpoint has limited rate limiting
+**Location:** `app/routers/behaviour.py` (`/v1/agents/{agent_id}/public-report`)
+
+**Issue:** Rate limiting is enforced only per email (5/day) and bypassable with disposable emails. The global in‑memory rate limiter does not apply to this form.
+
+**Recommendation:**
+- Add IP‑based or user‑agent throttling (ideally shared store / gateway).
+- Consider CAPTCHA for public submissions.
+
+---
+
+### LOW — Public report comment size is unbounded
+**Location:** `app/routers/behaviour.py`
+
+**Issue:** `comment` is stored in JSON `details` without length limits; could lead to oversized payloads or DB bloat.
+
+**Recommendation:**
+- Add a max length (e.g., 1–2k chars) and reject or truncate.
+
+---
+
+### LOW — Public report content not normalized beyond trimming
+**Location:** `app/routers/behaviour.py`
+
+**Issue:** Comment is stored as raw text; currently not rendered, but if surfaced later it could enable stored XSS if not escaped.
+
+**Recommendation:**
+- Keep Jinja auto‑escaping on any future rendering; consider sanitizing or encoding now.
+
+---
+
+### MEDIUM — Claim submission can be spammed
+**Location:** `app/routers/agents.py` (`POST /v1/agents/{agent_id}/claim`)
+
+**Issue:** Anyone can submit claims for any unverified agent with no rate limiting or verification. This does not grant ownership (admin approval required), but can spam storage and operational queues.
+
+**Recommendation:**
+- Add IP/email rate limits and CAPTCHA.
+- Consider blocking duplicate pending claims per agent/email.
+
+---
+
+### LOW — Certification cooldown/limit can be bypassed via multiple in‑progress attempts
+**Location:** `app/services/certification_service.py`
+
+**Issue:** Cooldown is enforced only after a completed attempt; agents can create many in‑progress attempts to sample tasks.
+
+**Recommendation:**
+- Enforce a single in‑progress attempt per agent/test, or mark started attempts toward monthly limits.
 
 ## Dependency review
 `requirements.txt` contains pinned versions. No automated vulnerability scan was available in this environment; consider running `pip-audit` or `safety` in CI.

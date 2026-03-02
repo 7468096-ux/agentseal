@@ -1,6 +1,6 @@
-# Code Review — AgentSeal (Sprint 1 + overall)
+# Code Review — AgentSeal (Sprint 1-4 + overall)
 
-Date: 2026-03-01
+Date: 2026-03-02
 
 ## Overall architecture
 - FastAPI + SQLAlchemy async stack is clean and conventional.
@@ -43,6 +43,21 @@ Date: 2026-03-01
     - Rate limiting behavior
     - Issue seal flows (free/paid/invalid)
     - Invite code consumption and exhaustion
+
+### 7) Performance (N+1 + query patterns)
+- Landing page builds featured agents with per‑agent calls to `compute_trust_breakdown` and a seals query (N+1 + N+1).
+  - **Recommendation:** Precompute trust scores (already stored) and batch seal aggregation for featured agents.
+- Directory search uses `ilike` on `name`, `slug`, `description` without text indexes.
+  - **Recommendation:** Add indexes or PostgreSQL trigram/full‑text search for scalable search.
+
+### 8) Edge cases / business logic drift
+- Certification service uses hard‑coded cooldown (24h) and monthly limit (3) instead of `CertTest.cooldown_hours` / `max_attempts_per_month` fields.
+  - **Recommendation:** Use test-specific settings to avoid mismatches as the catalog grows.
+- Certification attempt submission did not guard against re‑submission (fixed in this sprint).
+
+### 9) Type safety / schema consistency
+- `details`, `answers`, `tasks`, `results` are untyped JSON blobs across models/schemas.
+  - **Recommendation:** Introduce Pydantic models or JSON schema validation for critical data structures.
 
 ## Sprint 1 change review (based on recent updates)
 - **Auth via Authorization header:** implemented correctly for write endpoints; ownership check is enforced.

@@ -127,6 +127,8 @@ async def submit_attempt(
     attempt = (await session.execute(select(CertAttempt).where(CertAttempt.id == attempt_id))).scalar_one_or_none()
     if not attempt:
         raise HTTPException(status_code=404, detail="attempt not found")
+    if attempt.status == "completed":
+        raise HTTPException(status_code=400, detail="attempt already submitted")
 
     agent_id = getattr(request.state, "agent_id", None)
     if not agent_id or str(attempt.agent_id) != agent_id:
