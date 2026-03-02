@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime
+import math
+from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import HTTPException
@@ -41,6 +42,42 @@ async def create_cert_payment_stub(session: AsyncSession, agent: Agent, test: Ce
 async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> dict[str, Any]:
     if not test.is_active:
         raise HTTPException(status_code=404, detail="certification not found")
+
+    now = datetime.utcnow()
+    latest_attempt_result = await session.execute(
+        select(CertAttempt)
+        .where(
+            CertAttempt.agent_id == agent.id,
+            CertAttempt.test_id == test.id,
+            CertAttempt.completed_at.isnot(None),
+        )
+        .order_by(CertAttempt.completed_at.desc())
+        .limit(1)
+    )
+    latest_attempt = latest_attempt_result.scalar_one_or_none()
+    if latest_attempt and latest_attempt.completed_at:
+        elapsed = now - latest_attempt.completed_at
+        cooldown = timedelta(hours=24)
+        if elapsed < cooldown:
+            remaining_hours = math.ceil((cooldown - elapsed).total_seconds() / 3600)
+            raise HTTPException(status_code=400, detail=f"Please wait {remaining_hours} hours")
+
+    month_start = datetime(now.year, now.month, 1)
+    if now.month == 12:
+        next_month = datetime(now.year + 1, 1, 1)
+    else:
+        next_month = datetime(now.year, now.month + 1, 1)
+    monthly_count_result = await session.execute(
+        select(func.count(CertAttempt.id)).where(
+            CertAttempt.agent_id == agent.id,
+            CertAttempt.test_id == test.id,
+            CertAttempt.created_at >= month_start,
+            CertAttempt.created_at < next_month,
+        )
+    )
+    monthly_count = monthly_count_result.scalar_one() or 0
+    if monthly_count >= 3:
+        raise HTTPException(status_code=400, detail="Monthly attempt limit reached (3/month)")
 
     if test.price_cents > 0:
         payment = await create_cert_payment_stub(session, agent, test)

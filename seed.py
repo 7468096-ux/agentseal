@@ -628,6 +628,1050 @@ CERT_TASKS = [
         },
         "scoring_rubric": SCORING_RUBRIC,
     },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function fibonacci(n) that returns the nth Fibonacci number (assume fibonacci(0)=0, fibonacci(1)=1).",
+        "expected_output": {
+            "tests": [
+                {"input": 0, "output": 0},
+                {"input": 5, "output": 5},
+                {"input": 10, "output": 55},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function factorial(n) that returns n factorial.",
+        "expected_output": {
+            "tests": [
+                {"input": 0, "output": 1},
+                {"input": 5, "output": 120},
+                {"input": 7, "output": 5040},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function is_palindrome(s) that returns True if the string reads the same forwards and backwards (case-sensitive).",
+        "expected_output": {
+            "tests": [
+                {"input": "level", "output": True},
+                {"input": "Agent", "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function sum_of_digits(n) that returns the sum of digits in a non-negative integer.",
+        "expected_output": {
+            "tests": [
+                {"input": 123, "output": 6},
+                {"input": 908, "output": 17},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function capitalize_words(s) that capitalizes the first letter of each word and lowercases the rest.",
+        "expected_output": {
+            "tests": [
+                {"input": "hello world", "output": "Hello World"},
+                {"input": "mIxEd caSe", "output": "Mixed Case"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function remove_duplicates(lst) that removes duplicates while preserving first occurrence order.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 2, 3, 1], "output": [1, 2, 3]},
+                {"input": ["a", "b", "a"], "output": ["a", "b"]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function find_min(lst) that returns the minimum value in a list.",
+        "expected_output": {
+            "tests": [
+                {"input": [3, 1, 2], "output": 1},
+                {"input": [-5, 0, 5], "output": -5},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function count_chars(s) that returns a dictionary of character counts.",
+        "expected_output": {
+            "tests": [
+                {"input": "aab", "output": {"a": 2, "b": 1}},
+                {"input": "abca", "output": {"a": 2, "b": 1, "c": 1}},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function is_even(n) that returns True if n is even.",
+        "expected_output": {
+            "tests": [
+                {"input": 4, "output": True},
+                {"input": 7, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function power(base, exp) that returns base raised to exp (non-negative exp).",
+        "expected_output": {
+            "tests": [
+                {"input": {"base": 2, "exp": 3}, "output": 8},
+                {"input": {"base": 5, "exp": 0}, "output": 1},
+                {"input": {"base": 3, "exp": 2}, "output": 9},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function celsius_to_fahrenheit(c) that converts Celsius to Fahrenheit.",
+        "expected_output": {
+            "tests": [
+                {"input": 0, "output": 32},
+                {"input": 100, "output": 212},
+                {"input": -40, "output": -40},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function list_intersection(a, b) that returns the unique common elements in the order they appear in a.",
+        "expected_output": {
+            "tests": [
+                {"input": {"a": [1, 2, 2, 3], "b": [2, 3, 4]}, "output": [2, 3]},
+                {"input": {"a": ["a", "b"], "b": ["b", "c"]}, "output": ["b"]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function reverse_list(lst) that returns the list in reverse order.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 3], "output": [3, 2, 1]},
+                {"input": [], "output": []},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function is_anagram(s1, s2) that returns True if the strings are anagrams (case-sensitive).",
+        "expected_output": {
+            "tests": [
+                {"input": {"s1": "listen", "s2": "silent"}, "output": True},
+                {"input": {"s1": "hello", "s2": "bello"}, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function sort_string_chars(s) that returns a string with characters sorted ascending.",
+        "expected_output": {
+            "tests": [
+                {"input": "cba", "output": "abc"},
+                {"input": "dbca", "output": "abcd"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function repeat_string(s, n) that repeats the string n times.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "ab", "n": 3}, "output": "ababab"},
+                {"input": {"s": "x", "n": 0}, "output": ""},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function truncate_string(s, n) that returns the first n characters of s.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "hello", "n": 2}, "output": "he"},
+                {"input": {"s": "hi", "n": 5}, "output": "hi"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function count_words(s) that returns the number of words separated by whitespace.",
+        "expected_output": {
+            "tests": [
+                {"input": "hello world", "output": 2},
+                {"input": " one  two three ", "output": 3},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function unique_chars(s) that returns a string of unique characters in order of first appearance.",
+        "expected_output": {
+            "tests": [
+                {"input": "banana", "output": "ban"},
+                {"input": "abc", "output": "abc"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function sum_list(lst) that returns the sum of all numbers in the list.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 3], "output": 6},
+                {"input": [], "output": 0},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function flatten_one_level(lst) that flattens one nesting level.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, [2, 3], [4], 5], "output": [1, 2, 3, 4, 5]},
+                {"input": [[1, 2], [3, 4]], "output": [1, 2, 3, 4]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function zip_lists(a, b) that zips two lists into a list of pairs (length = min(len(a), len(b))).",
+        "expected_output": {
+            "tests": [
+                {"input": {"a": [1, 2, 3], "b": [4, 5]}, "output": [[1, 4], [2, 5]]},
+                {"input": {"a": ["a", "b"], "b": [1, 2, 3]}, "output": [["a", 1], ["b", 2]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function index_of(lst, item) that returns the index of item or -1 if not found.",
+        "expected_output": {
+            "tests": [
+                {"input": {"lst": [1, 2, 3], "item": 2}, "output": 1},
+                {"input": {"lst": ["a", "b"], "item": "c"}, "output": -1},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function chunk_list(lst, n) that splits the list into chunks of size n.",
+        "expected_output": {
+            "tests": [
+                {"input": {"lst": [1, 2, 3, 4, 5], "n": 2}, "output": [[1, 2], [3, 4], [5]]},
+                {"input": {"lst": [1, 2, 3], "n": 3}, "output": [[1, 2, 3]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "easy",
+        "task_type": "write_function",
+        "prompt": "Write a function rotate_list(lst, k) that rotates the list to the right by k steps.",
+        "expected_output": {
+            "tests": [
+                {"input": {"lst": [1, 2, 3, 4], "k": 1}, "output": [4, 1, 2, 3]},
+                {"input": {"lst": [1, 2, 3, 4], "k": 5}, "output": [4, 1, 2, 3]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function merge_sorted_arrays(a, b) that merges two sorted arrays into one sorted array.",
+        "expected_output": {
+            "tests": [
+                {"input": {"a": [1, 3, 5], "b": [2, 4, 6]}, "output": [1, 2, 3, 4, 5, 6]},
+                {"input": {"a": [], "b": [1, 2]}, "output": [1, 2]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function valid_parentheses_types(s) that validates (), {}, and [] brackets.",
+        "expected_output": {
+            "tests": [
+                {"input": "([]{})", "output": True},
+                {"input": "([)]", "output": False},
+                {"input": "{[()()]}", "output": True},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function matrix_transpose(m) that returns the transpose of a matrix.",
+        "expected_output": {
+            "tests": [
+                {"input": [[1, 2, 3], [4, 5, 6]], "output": [[1, 4], [2, 5], [3, 6]]},
+                {"input": [[1]], "output": [[1]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function spiral_order(matrix) that returns elements in spiral order.",
+        "expected_output": {
+            "tests": [
+                {"input": [[1, 2, 3], [4, 5, 6], [7, 8, 9]], "output": [1, 2, 3, 6, 9, 8, 7, 4, 5]},
+                {"input": [[1, 2], [3, 4]], "output": [1, 2, 4, 3]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function group_anagrams(words) that groups anagrams, preserving first-appearance group order and word order within groups.",
+        "expected_output": {
+            "tests": [
+                {"input": ["eat", "tea", "tan", "ate", "nat", "bat"], "output": [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]},
+                {"input": [""], "output": [[""]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function longest_palindrome_substring(s) that returns the first longest palindromic substring.",
+        "expected_output": {
+            "tests": [
+                {"input": "babad", "output": "bab"},
+                {"input": "cbbd", "output": "bb"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function roman_to_integer(s) that converts a Roman numeral to an integer.",
+        "expected_output": {
+            "tests": [
+                {"input": "III", "output": 3},
+                {"input": "MCMXCIV", "output": 1994},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function integer_to_roman(n) that converts an integer to Roman numerals.",
+        "expected_output": {
+            "tests": [
+                {"input": 3, "output": "III"},
+                {"input": 58, "output": "LVIII"},
+                {"input": 1994, "output": "MCMXCIV"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function longest_common_prefix(strs) that returns the longest common prefix among strings.",
+        "expected_output": {
+            "tests": [
+                {"input": ["flower", "flow", "flight"], "output": "fl"},
+                {"input": ["dog", "racecar", "car"], "output": ""},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function valid_sudoku(board) that checks whether a 9x9 Sudoku board is valid.",
+        "expected_output": {
+            "tests": [
+                {
+                    "input": [
+                        ["5", "3", ".", ".", "7", ".", ".", ".", "."],
+                        ["6", ".", ".", "1", "9", "5", ".", ".", "."],
+                        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+                        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+                        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+                        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+                        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+                        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+                        [".", ".", ".", ".", "8", ".", ".", "7", "9"],
+                    ],
+                    "output": True,
+                },
+                {
+                    "input": [
+                        ["8", "3", ".", ".", "7", ".", ".", ".", "."],
+                        ["6", ".", ".", "1", "9", "5", ".", ".", "."],
+                        [".", "9", "8", ".", ".", ".", ".", "6", "."],
+                        ["8", ".", ".", ".", "6", ".", ".", ".", "3"],
+                        ["4", ".", ".", "8", ".", "3", ".", ".", "1"],
+                        ["7", ".", ".", ".", "2", ".", ".", ".", "6"],
+                        [".", "6", ".", ".", ".", ".", "2", "8", "."],
+                        [".", ".", ".", "4", "1", "9", ".", ".", "5"],
+                        [".", ".", ".", ".", "8", ".", ".", "7", "9"],
+                    ],
+                    "output": False,
+                },
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function rotate_matrix_90(m) that rotates a square matrix 90 degrees clockwise.",
+        "expected_output": {
+            "tests": [
+                {"input": [[1, 2], [3, 4]], "output": [[3, 1], [4, 2]]},
+                {"input": [[1, 2, 3], [4, 5, 6], [7, 8, 9]], "output": [[7, 4, 1], [8, 5, 2], [9, 6, 3]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function string_compression(s) that returns a run-length encoded string (e.g., aabcccccaaa -> a2b1c5a3).",
+        "expected_output": {
+            "tests": [
+                {"input": "aabcccccaaa", "output": "a2b1c5a3"},
+                {"input": "abc", "output": "a1b1c1"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function decode_string(s) that decodes patterns like 3[a2[c]] -> accaccacc.",
+        "expected_output": {
+            "tests": [
+                {"input": "3[a2[c]]", "output": "accaccacc"},
+                {"input": "2[ab]3[c]", "output": "ababccc"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function max_subarray_sum(arr) that returns the maximum sum of a contiguous subarray.",
+        "expected_output": {
+            "tests": [
+                {"input": [-2, 1, -3, 4, -1, 2, 1, -5, 4], "output": 6},
+                {"input": [1, 2, 3], "output": 6},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function product_except_self(arr) that returns an array where each element is the product of all other elements.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 3, 4], "output": [24, 12, 8, 6]},
+                {"input": [0, 1, 2, 3], "output": [6, 0, 0, 0]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function min_window_substring(s, t) that returns the minimum window in s containing all characters of t.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "ADOBECODEBANC", "t": "ABC"}, "output": "BANC"},
+                {"input": {"s": "a", "t": "a"}, "output": "a"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function longest_substring_no_repeat(s) that returns the length of the longest substring without repeating characters.",
+        "expected_output": {
+            "tests": [
+                {"input": "abcabcbb", "output": 3},
+                {"input": "bbbbb", "output": 1},
+                {"input": "pwwkew", "output": 3},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function three_sum(arr) that returns all unique triplets that sum to zero, sorted lexicographically.",
+        "expected_output": {
+            "tests": [
+                {"input": [-1, 0, 1, 2, -1, -4], "output": [[-1, -1, 2], [-1, 0, 1]]},
+                {"input": [0, 0, 0, 0], "output": [[0, 0, 0]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function container_with_most_water(heights) that returns the maximum water container area.",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 8, 6, 2, 5, 4, 8, 3, 7], "output": 49},
+                {"input": [1, 1], "output": 1},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function word_break(s, word_dict) that returns True if s can be segmented into dictionary words.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "leetcode", "word_dict": ["leet", "code"]}, "output": True},
+                {"input": {"s": "catsandog", "word_dict": ["cats", "dog", "sand", "and", "cat"]}, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function coin_change(coins, amount) that returns the fewest number of coins needed to make amount, or -1 if impossible.",
+        "expected_output": {
+            "tests": [
+                {"input": {"coins": [1, 2, 5], "amount": 11}, "output": 3},
+                {"input": {"coins": [2], "amount": 3}, "output": -1},
+                {"input": {"coins": [1], "amount": 0}, "output": 0},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function jump_game(arr) that returns True if you can reach the last index.",
+        "expected_output": {
+            "tests": [
+                {"input": [2, 3, 1, 1, 4], "output": True},
+                {"input": [3, 2, 1, 0, 4], "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function generate_parentheses(n) that returns all valid parentheses combinations in lexicographic order.",
+        "expected_output": {
+            "tests": [
+                {"input": 1, "output": ["()"]},
+                {"input": 2, "output": ["(())", "()()"]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function letter_combinations_phone(digits) that returns all letter combinations for digits 2-9 in lexicographic order.",
+        "expected_output": {
+            "tests": [
+                {"input": "23", "output": ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]},
+                {"input": "7", "output": ["p", "q", "r", "s"]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "medium",
+        "task_type": "write_function",
+        "prompt": "Write a function next_permutation(arr) that returns the next lexicographic permutation (or sorted ascending if none).",
+        "expected_output": {
+            "tests": [
+                {"input": [1, 2, 3], "output": [1, 3, 2]},
+                {"input": [3, 2, 1], "output": [1, 2, 3]},
+                {"input": [1, 1, 5], "output": [1, 5, 1]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function merge_k_sorted_lists(lists) that merges k sorted lists into one sorted list.",
+        "expected_output": {
+            "tests": [
+                {"input": [[1, 4, 5], [1, 3, 4], [2, 6]], "output": [1, 1, 2, 3, 4, 4, 5, 6]},
+                {"input": [[], [1]], "output": [1]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function word_ladder(begin, end, word_list) that returns the length of the shortest transformation sequence.",
+        "expected_output": {
+            "tests": [
+                {"input": {"begin": "hit", "end": "cog", "word_list": ["hot", "dot", "dog", "lot", "log", "cog"]}, "output": 5},
+                {"input": {"begin": "hit", "end": "cog", "word_list": ["hot", "dot", "dog", "lot", "log"]}, "output": 0},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function alien_dictionary(words) that returns a valid character ordering or an empty string if impossible.",
+        "expected_output": {
+            "tests": [
+                {"input": ["wrt", "wrf", "er", "ett", "rftt"], "output": "wertf"},
+                {"input": ["z", "x"], "output": "zx"},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function course_schedule(num_courses, prerequisites) that returns True if all courses can be finished.",
+        "expected_output": {
+            "tests": [
+                {"input": {"num_courses": 2, "prerequisites": [[1, 0]]}, "output": True},
+                {"input": {"num_courses": 2, "prerequisites": [[1, 0], [0, 1]]}, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function word_search_2(board, words) that returns all words found in the board, sorted alphabetically.",
+        "expected_output": {
+            "tests": [
+                {
+                    "input": {
+                        "board": [
+                            ["o", "a", "a", "n"],
+                            ["e", "t", "a", "e"],
+                            ["i", "h", "k", "r"],
+                            ["i", "f", "l", "v"],
+                        ],
+                        "words": ["oath", "pea", "eat", "rain"],
+                    },
+                    "output": ["eat", "oath"],
+                },
+                {
+                    "input": {
+                        "board": [["a", "b"], ["c", "d"]],
+                        "words": ["ab", "abc", "abd", "acdb"],
+                    },
+                    "output": ["ab", "abd", "acdb"],
+                },
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function skyline_problem(buildings) that returns the skyline key points.",
+        "expected_output": {
+            "tests": [
+                {
+                    "input": [[2, 9, 10], [3, 7, 15], [5, 12, 12], [15, 20, 10], [19, 24, 8]],
+                    "output": [[2, 10], [3, 15], [7, 12], [12, 0], [15, 10], [20, 8], [24, 0]],
+                },
+                {"input": [[0, 2, 3], [2, 5, 3]], "output": [[0, 3], [5, 0]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function trapping_rain_water(heights) that returns how much water can be trapped.",
+        "expected_output": {
+            "tests": [
+                {"input": [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1], "output": 6},
+                {"input": [4, 2, 0, 3, 2, 5], "output": 9},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function largest_rectangle_histogram(heights) that returns the area of the largest rectangle in a histogram.",
+        "expected_output": {
+            "tests": [
+                {"input": [2, 1, 5, 6, 2, 3], "output": 10},
+                {"input": [2, 4], "output": 4},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function regular_expression_matching(s, p) that supports '.' and '*' pattern matching.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "aa", "p": "a"}, "output": False},
+                {"input": {"s": "aa", "p": "a*"}, "output": True},
+                {"input": {"s": "ab", "p": ".*"}, "output": True},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function wildcard_matching(s, p) that supports '?' and '*' wildcards.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s": "aa", "p": "a"}, "output": False},
+                {"input": {"s": "aa", "p": "*"}, "output": True},
+                {"input": {"s": "cb", "p": "?a"}, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function edit_distance(s1, s2) that returns the minimum edit distance between two strings.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s1": "horse", "s2": "ros"}, "output": 3},
+                {"input": {"s1": "intention", "s2": "execution"}, "output": 5},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function burst_balloons(nums) that returns the maximum coins obtainable.",
+        "expected_output": {
+            "tests": [
+                {"input": [3, 1, 5, 8], "output": 167},
+                {"input": [1, 5], "output": 10},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function palindrome_partitioning(s) that returns all palindrome partitions in left-to-right backtracking order.",
+        "expected_output": {
+            "tests": [
+                {"input": "aab", "output": [["a", "a", "b"], ["aa", "b"]]},
+                {"input": "a", "output": [["a"]]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function max_profit_k_transactions(k, prices) that returns the maximum profit with at most k transactions.",
+        "expected_output": {
+            "tests": [
+                {"input": {"k": 2, "prices": [3, 2, 6, 5, 0, 3]}, "output": 7},
+                {"input": {"k": 1, "prices": [7, 1, 5, 3, 6, 4]}, "output": 5},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function count_inversions(arr) that returns the number of inversions in the array.",
+        "expected_output": {
+            "tests": [
+                {"input": [2, 4, 1, 3, 5], "output": 3},
+                {"input": [5, 4, 3, 2, 1], "output": 10},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function kth_largest(arr, k) that returns the kth largest element.",
+        "expected_output": {
+            "tests": [
+                {"input": {"arr": [3, 2, 1, 5, 6, 4], "k": 2}, "output": 5},
+                {"input": {"arr": [3, 2, 3, 1, 2, 4, 5, 5, 6], "k": 4}, "output": 4},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function topological_sort(graph) that returns a topological ordering (lexicographically smallest if multiple).",
+        "expected_output": {
+            "tests": [
+                {"input": {"A": ["C"], "B": ["C"], "C": ["D"], "D": []}, "output": ["A", "B", "C", "D"]},
+                {"input": {"w": ["e"], "e": ["r"], "r": ["t"], "t": []}, "output": ["w", "e", "r", "t"]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function dijkstra(graph, source) that returns shortest-path distances from source.",
+        "expected_output": {
+            "tests": [
+                {"input": {"graph": {"A": {"B": 1, "C": 4}, "B": {"C": 2, "D": 5}, "C": {"D": 1}, "D": {}}, "source": "A"}, "output": {"A": 0, "B": 1, "C": 3, "D": 4}},
+                {"input": {"graph": {"A": {"B": 2}, "B": {"C": 2}, "C": {}}, "source": "A"}, "output": {"A": 0, "B": 2, "C": 4}},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Implement a trie_implementation() supporting insert, search, and starts_with; return outputs for each operation.",
+        "expected_output": {
+            "tests": [
+                {
+                    "input": {
+                        "ops": [
+                            ["insert", "apple"],
+                            ["search", "apple"],
+                            ["search", "app"],
+                            ["starts_with", "app"],
+                            ["insert", "app"],
+                            ["search", "app"],
+                        ]
+                    },
+                    "output": [None, True, False, True, None, True],
+                }
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function sliding_window_maximum(arr, k) that returns the maximum for each sliding window.",
+        "expected_output": {
+            "tests": [
+                {"input": {"arr": [1, 3, -1, -3, 5, 3, 6, 7], "k": 3}, "output": [3, 3, 5, 5, 6, 7]},
+                {"input": {"arr": [1], "k": 1}, "output": [1]},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function min_cost_climbing_stairs(cost) that returns the minimum cost to reach the top.",
+        "expected_output": {
+            "tests": [
+                {"input": [10, 15, 20], "output": 15},
+                {"input": [1, 100, 1, 1, 1, 100, 1, 1, 100, 1], "output": 6},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function house_robber_2(nums) that returns the max amount without robbing adjacent houses in a circle.",
+        "expected_output": {
+            "tests": [
+                {"input": [2, 3, 2], "output": 3},
+                {"input": [1, 2, 3, 1], "output": 4},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function longest_increasing_subsequence(arr) that returns the length of the LIS.",
+        "expected_output": {
+            "tests": [
+                {"input": [10, 9, 2, 5, 3, 7, 101, 18], "output": 4},
+                {"input": [0, 1, 0, 3, 2, 3], "output": 4},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function max_rectangle_in_matrix(matrix) that returns the largest rectangle of 1s in a binary matrix.",
+        "expected_output": {
+            "tests": [
+                {"input": [[1, 0, 1, 0, 0], [1, 0, 1, 1, 1], [1, 1, 1, 1, 1], [1, 0, 0, 1, 0]], "output": 6},
+                {"input": [[0, 0], [0, 0]], "output": 0},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+    {
+        "test_category": "coding",
+        "difficulty": "hard",
+        "task_type": "write_function",
+        "prompt": "Write a function string_interleaving(s1, s2, s3) that returns True if s3 is an interleaving of s1 and s2.",
+        "expected_output": {
+            "tests": [
+                {"input": {"s1": "aabcc", "s2": "dbbca", "s3": "aadbbcbcac"}, "output": True},
+                {"input": {"s1": "aabcc", "s2": "dbbca", "s3": "aadbbbaccc"}, "output": False},
+            ]
+        },
+        "scoring_rubric": SCORING_RUBRIC,
+    },
+
 ]
 
 CERT_TESTS = [
