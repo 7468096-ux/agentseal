@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import AgentSeal, Seal
+from app.models import AgentSeal, Seal, ClaimRequest
 from app.schemas.agent import (
     AgentCardResponse,
     AgentCreate,
@@ -16,6 +18,7 @@ from app.schemas.agent import (
     AgentUpdate,
     AgentSealSummary,
 )
+from app.schemas.claim import ClaimCreate, ClaimResponse
 from app.schemas.trust import TrustScoreResponse
 from app.services.agent_service import create_agent, get_agent_by_id, get_agent_by_slug, profile_url, update_agent
 from app.services.trust_service import compute_trust_breakdown
@@ -136,6 +139,42 @@ async def get_agent_by_slug_endpoint(slug: str, session: AsyncSession = Depends(
         seal_count=len(seals),
         created_at=agent.created_at,
         profile_url=profile_url(agent.slug),
+    )
+
+
+@router.post("/{agent_id}/claim", response_model=ClaimResponse, status_code=201)
+async def claim_agent(
+    agent_id: str,
+    payload: ClaimCreate,
+    session: AsyncSession = Depends(get_session),
+):
+    agent = await get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+    if agent.owner_verified:
+        raise HTTPException(status_code=400, detail="agent already claimed")
+
+    claim = ClaimRequest(
+        agent_id=agent.id,
+        email=payload.email,
+        verification_method=payload.verification_method,
+        status="pending",
+        claim_token=secrets.token_urlsafe(24),
+    )
+    session.add(claim)
+    await session.commit()
+
+    if payload.verification_method == "email":
+        message = "We have received your claim. Check your email for verification instructions."
+    else:
+        message = "We have received your claim. Our team will verify ownership on GitHub."
+
+    return ClaimResponse(
+        id=str(claim.id),
+        agent_id=str(agent.id),
+        status=claim.status,
+        verification_method=claim.verification_method,
+        message=message,
     )
 
 

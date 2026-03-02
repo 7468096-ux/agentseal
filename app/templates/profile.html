@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% block title %}{{ agent.name }} — AgentSeal{% endblock %}
+{% block meta_description %}{{ agent.description or "Verified profile on AgentSeal." }}{% endblock %}
+{% block og_title %}{{ agent.name }} — AgentSeal{% endblock %}
+{% block og_description %}{{ agent.description or "View trust score, seals, and certification status." }}{% endblock %}
+{% block og_type %}profile{% endblock %}
+{% block og_url %}{{ profile_url }}{% endblock %}
+{% block twitter_title %}{{ agent.name }} — AgentSeal{% endblock %}
+{% block twitter_description %}{{ agent.description or "View trust score, seals, and certification status." }}{% endblock %}
 {% block content %}
+{% if not agent.owner_verified %}
+<section class="claim-banner">
+  <div>
+    <strong>⚠️ This profile is unclaimed.</strong>
+    <span class="muted">Are you the owner?</span>
+  </div>
+  <a class="button small" href="/claim/{{ agent.id }}">Claim this agent</a>
+</section>
+{% endif %}
+
 <section class="profile-header">
   <div class="profile-card">
     <div class="profile-top">
@@ -12,7 +29,12 @@
         {% endif %}
       </div>
       <div class="profile-info">
-        <h1>{{ agent.name }}</h1>
+        <h1>
+          {{ agent.name }}
+          {% if agent.owner_verified %}
+            <span class="verified-badge">Verified ✓</span>
+          {% endif %}
+        </h1>
         <p class="muted">{{ agent.platform }}</p>
         {% if agent.description %}<p>{{ agent.description }}</p>{% endif %}
         <div class="status-row">
@@ -45,16 +67,26 @@
 <section class="profile-metrics">
   <div class="metric-card">
     <h3>Behaviour stats</h3>
-    <p class="muted">Success rate: {{ behaviour.success_rate * 100 | round(1) }}%</p>
-    <p class="muted">Total tasks: {{ behaviour.total_reports }}</p>
-    <p class="muted">Failures: {{ behaviour.failure_count }}</p>
+    {% if behaviour.total_reports > 0 %}
+      <p class="muted">Success rate: {{ behaviour.success_rate * 100 | round(1) }}%</p>
+      <p class="muted">Total tasks: {{ behaviour.total_reports }}</p>
+      <p class="muted">Failures: {{ behaviour.failure_count }}</p>
+    {% else %}
+      <p class="muted">No activity yet.</p>
+    {% endif %}
   </div>
   <div class="metric-card">
     <h3>Embed badge</h3>
-    <div class="badge-preview">
-      <img src="{{ badge_url }}" alt="AgentSeal badge" />
+    <div class="badge-embed">
+      <div class="badge-preview">
+        <img src="{{ badge_url }}" alt="AgentSeal badge" />
+      </div>
+      <div class="embed-actions">
+        <input id="badge-embed-input" class="embed-input" type="text" readonly value="{{ badge_embed }}" />
+        <button class="button ghost small" type="button" id="copy-badge">Copy</button>
+      </div>
+      <small id="copy-status" class="muted"></small>
     </div>
-    <input class="embed-input" type="text" readonly value="{{ badge_embed }}" />
   </div>
 </section>
 
@@ -80,4 +112,22 @@
     {% endfor %}
   </div>
 </section>
+
+<script>
+  const copyButton = document.getElementById("copy-badge");
+  const copyStatus = document.getElementById("copy-status");
+  const embedInput = document.getElementById("badge-embed-input");
+  if (copyButton && embedInput) {
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(embedInput.value);
+        copyStatus.textContent = "Badge embed copied.";
+      } catch (err) {
+        embedInput.select();
+        document.execCommand("copy");
+        copyStatus.textContent = "Badge embed copied.";
+      }
+    });
+  }
+</script>
 {% endblock %}

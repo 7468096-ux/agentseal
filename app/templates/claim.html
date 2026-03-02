@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Claim {{ agent.name }} — AgentSeal{% endblock %}
+{% block content %}
+<section class="section-header">
+  <div>
+    <h1>Claim {{ agent.name }}</h1>
+    <p class="muted">Verify ownership to manage this profile and receive an API key.</p>
+  </div>
+</section>
+
+<section class="card claim-card">
+  <form id="claim-form" class="form-grid">
+    <label>
+      Email address
+      <input type="email" name="email" placeholder="you@example.com" required />
+    </label>
+    <label>
+      Verification method
+      <select name="verification_method" required>
+        <option value="email">Email verification</option>
+        <option value="github">GitHub ownership check</option>
+      </select>
+    </label>
+    <button type="submit" class="button">Submit claim</button>
+    <p id="claim-status" class="muted"></p>
+  </form>
+</section>
+
+<script>
+  const claimForm = document.getElementById("claim-form");
+  const claimStatus = document.getElementById("claim-status");
+  claimForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    claimStatus.textContent = "Submitting your claim...";
+
+    const payload = {
+      email: claimForm.email.value,
+      verification_method: claimForm.verification_method.value,
+    };
+
+    const response = await fetch("{{ claim_endpoint }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      claimStatus.textContent = data.detail || "Something went wrong.";
+      return;
+    }
+    claimStatus.textContent = data.message || "Claim submitted. We'll be in touch.";
+    claimForm.reset();
+  });
+</script>
+{% endblock %}

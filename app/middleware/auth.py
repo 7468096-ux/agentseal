@@ -17,17 +17,23 @@ EXEMPT_PATHS = {
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            if request.url.path in EXEMPT_PATHS and request.method == "POST":
-                return await call_next(request)
+            path = request.url.path
+            if request.method == "POST":
+                if path in EXEMPT_PATHS:
+                    return await call_next(request)
+                if path.startswith("/v1/agents/") and path.endswith("/claim"):
+                    return await call_next(request)
+                if path.startswith("/v1/claims/") and path.endswith("/approve"):
+                    return await call_next(request)
 
+            api_key = request.headers.get("X-API-Key")
             auth_header = request.headers.get("Authorization")
-            if not auth_header:
-                return JSONResponse({"detail": "missing api key"}, status_code=401)
 
-            if auth_header.lower().startswith("bearer "):
-                api_key = auth_header.split(" ", 1)[1].strip()
-            else:
-                api_key = auth_header.strip()
+            if not api_key and auth_header:
+                if auth_header.lower().startswith("bearer "):
+                    api_key = auth_header.split(" ", 1)[1].strip()
+                else:
+                    api_key = auth_header.strip()
 
             if not api_key:
                 return JSONResponse({"detail": "missing api key"}, status_code=401)

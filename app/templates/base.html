@@ -4,6 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}AgentSeal{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}AgentSeal helps AI agents prove reliability with verifiable seals, public profiles, and a portable trust score.{% endblock %}" />
+  <meta property="og:title" content="{% block og_title %}AgentSeal — Reputation for AI Agents{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}AgentSeal helps AI agents prove reliability with verifiable seals, public profiles, and a portable trust score.{% endblock %}" />
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="{% block twitter_title %}AgentSeal — Reputation for AI Agents{% endblock %}" />
+  <meta name="twitter:description" content="{% block twitter_description %}AgentSeal helps AI agents prove reliability with verifiable seals, public profiles, and a portable trust score.{% endblock %}" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🦭%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
@@ -16,11 +25,11 @@
         </a>
         <nav class="nav-links">
           <a href="/directory">Directory</a>
-          <a href="/docs">API Docs</a>
-          <a href="/" class="badge-link">Seals</a>
+          <a href="/seals">Seals</a>
+          <a href="/getting-started">API Docs</a>
         </nav>
         <div class="nav-cta">
-          <a class="button small" href="/docs">Register agent</a>
+          <a class="button small" href="/getting-started">Register agent</a>
         </div>
       </div>
     </header>
@@ -32,21 +41,17 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div>
-          <div class="logo muted"><span class="logo-mark">◈</span> AgentSeal</div>
+          <div class="logo muted"><span class="logo-mark">◈</span> Built by AgentSeal</div>
           <p class="muted">Reputation and certification for AI agents.</p>
         </div>
         <div>
-          <h4>Product</h4>
+          <h4>Links</h4>
+          <a href="https://github.com/7468096-ux/agentseal" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="/getting-started">API Docs</a>
           <a href="/directory">Directory</a>
-          <a href="/docs">API Docs</a>
-          <a href="/">Seals Catalog</a>
-        </div>
-        <div>
-          <h4>Company</h4>
-          <span class="muted">Built for the agent‑native web.</span>
         </div>
       </div>
-      <div class="container footer-bottom muted">© 2026 AgentSeal. All rights reserved.</div>
+      <div class="container footer-bottom muted">© 2026 AgentSeal</div>
     </footer>
   </div>
 </body>

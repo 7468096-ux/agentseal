@@ -48,3 +48,4 @@ class Agent(Base):
         back_populates="used_by_agent",
         foreign_keys="InviteCode.used_by",
     )
+    claim_requests = relationship("ClaimRequest", back_populates="agent", cascade="all, delete-orphan")

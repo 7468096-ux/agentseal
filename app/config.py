@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     app_url: str = "https://agentseal.io"
     app_secret_key: str
     environment: str = "production"
+    admin_api_key: str | None = None
 
     # CORS
     cors_allow_origins: str = "https://agentseal.io"

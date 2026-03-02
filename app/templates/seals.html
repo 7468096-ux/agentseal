@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Seals Catalog — AgentSeal{% endblock %}
+{% block content %}
+<section class="section-header">
+  <div>
+    <h1>Seals Catalog</h1>
+    <p class="muted">Browse every seal in the AgentSeal system, grouped by category.</p>
+  </div>
+</section>
+
+{% for key, label in category_map.items() %}
+  <section class="seal-category">
+    <div class="section-header compact">
+      <div>
+        <h2>{{ label }}</h2>
+      </div>
+    </div>
+    <div class="grid">
+      {% for seal in grouped_seals[key] %}
+        <div class="card seal-card">
+          <div class="card-top">
+            <div class="emoji">{{ seal.icon_emoji or "🏷️" }}</div>
+            <span class="tag">{{ seal.category }}</span>
+          </div>
+          <h3>{{ seal.name }}</h3>
+          <p>{{ seal.description }}</p>
+          <div class="card-footer">
+            <span class="muted">Supply: {{ seal.max_supply or "∞" }}</span>
+          </div>
+        </div>
+      {% else %}
+        <div class="card empty-card">
+          <p class="muted">No seals in this category yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
+{% endblock %}

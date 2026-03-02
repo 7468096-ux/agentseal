@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_session
 from app.models import Agent, AgentSeal, Seal, CertTest, CertAttempt
-from app.services.agent_service import get_agent_by_slug, profile_url
+from app.services.agent_service import get_agent_by_id, get_agent_by_slug, profile_url
 from app.services.behaviour_service import get_agent_stats
 from app.services.trust_service import compute_trust_breakdown
 
@@ -20,7 +20,6 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def landing(request: Request, session: AsyncSession = Depends(get_session)):
-    seals = (await session.execute(select(Seal).where(Seal.is_active == True))).scalars().all()
     cert_tests = (
         await session.execute(select(CertTest).where(CertTest.is_active == True).order_by(CertTest.price_cents))
     ).scalars().all()
@@ -36,11 +35,53 @@ async def landing(request: Request, session: AsyncSession = Depends(get_session)
     )
     cert_count = cert_count_result.scalar_one() or 0
 
+    featured_result = await session.execute(
+        select(Agent)
+        .where(Agent.is_active == True)
+        .order_by(Agent.trust_score.desc().nullslast(), Agent.created_at.desc())
+        .limit(4)
+    )
+    featured_agents = []
+    for agent in featured_result.scalars().all():
+        trust = await compute_trust_breakdown(session, agent)
+        seal_rows = (
+            await session.execute(
+                select(AgentSeal, Seal)
+                .join(Seal, AgentSeal.seal_id == Seal.id)
+                .where(
+                    AgentSeal.agent_id == agent.id,
+                    AgentSeal.revoked == False,
+                    or_(AgentSeal.expires_at.is_(None), AgentSeal.expires_at > func.now()),
+                )
+                .order_by(AgentSeal.issued_at.desc())
+                .limit(3)
+            )
+        ).all()
+        top_seals = [
+            {
+                "name": seal.name,
+                "icon_emoji": seal.icon_emoji,
+                "category": seal.category,
+            }
+            for _, seal in seal_rows
+        ]
+        featured_agents.append(
+            {
+                "name": agent.name,
+                "slug": agent.slug,
+                "platform": agent.platform,
+                "avatar_url": agent.avatar_url,
+                "trust_score": trust["total_score"],
+                "top_seals": top_seals,
+                "profile_url": profile_url(agent.slug),
+            }
+        )
+
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "seals": seals,
+            "featured_agents": featured_agents,
             "cert_tests": cert_tests,
             "stats": {
                 "agent_count": agent_count,
@@ -133,4 +174,53 @@ async def directory(request: Request, session: AsyncSession = Depends(get_sessio
     return templates.TemplateResponse(
         "directory.html",
         {"request": request, "agents": agents},
+    )
+
+
+@router.get("/seals", response_class=HTMLResponse)
+async def seals_page(request: Request, session: AsyncSession = Depends(get_session)):
+    seals = (
+        await session.execute(select(Seal).where(Seal.is_active == True).order_by(Seal.category, Seal.name))
+    ).scalars().all()
+
+    category_map = {
+        "certification": "🎓 Certification",
+        "milestone": "🏆 Milestone",
+        "quality": "⭐ Quality",
+        "community": "🤝 Community",
+        "vanity": "🎨 Vanity",
+        "self-declared": "📋 Self-declared",
+    }
+    grouped = {key: [] for key in category_map.keys()}
+    for seal in seals:
+        grouped.setdefault(seal.category, []).append(seal)
+
+    return templates.TemplateResponse(
+        "seals.html",
+        {
+            "request": request,
+            "grouped_seals": grouped,
+            "category_map": category_map,
+        },
+    )
+
+
+@router.get("/getting-started", response_class=HTMLResponse)
+async def getting_started(request: Request):
+    return templates.TemplateResponse("getting_started.html", {"request": request})
+
+
+@router.get("/claim/{agent_id}", response_class=HTMLResponse)
+async def claim_page(agent_id: str, request: Request, session: AsyncSession = Depends(get_session)):
+    agent = await get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    return templates.TemplateResponse(
+        "claim.html",
+        {
+            "request": request,
+            "agent": agent,
+            "claim_endpoint": f"/v1/agents/{agent.id}/claim",
+        },
     )
