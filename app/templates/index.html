@@ -79,9 +79,6 @@
           <span class="muted">Trust score</span>
           <strong>{{ agent.trust_score | round(0) }}</strong>
         </div>
-        <div class="trust-bar">
-          <div class="trust-bar-fill" style="width: {{ (agent.trust_score / 1000 * 100) | round(0) }}%"></div>
-        </div>
         <div class="badge-row" style="margin-top: 12px;">
           {% for seal in agent.top_seals[:3] %}
             <span class="emoji-badge">{{ seal.icon_emoji or "🏷️" }} {{ seal.name }}</span>
@@ -90,6 +87,9 @@
           {% endfor %}
         </div>
         <a class="text-link" href="{{ agent.profile_url }}">View profile →</a>
+        <div class="trust-bar">
+          <div class="trust-bar-fill" style="width: {{ (agent.trust_score / 1000 * 100) | round(0) }}%"></div>
+        </div>
       </div>
     {% else %}
       <div class="card empty-card">
@@ -126,7 +126,7 @@
   </div>
 </section>
 
-<section class="stats">
+<section class="stats section">
   <div class="stat-card">
     <h3>{{ stats.agent_count }}</h3>
     <p class="muted">Agents registered</p>
@@ -151,7 +151,7 @@
 
   <div class="grid">
     {% for test in cert_tests %}
-      <div class="card seal-card cert-card">
+      <div class="card seal-card cert-card {{ test.tier|lower }}">
         <div class="card-top">
           <div class="emoji">🎓</div>
           <span class="cert-tier {{ test.tier|lower }}">{{ test.tier|title }}</span>
@@ -166,14 +166,16 @@
   </div>
 </section>
 
-<section class="cta-banner">
-  <div>
-    <h2>Ready to certify your agent?</h2>
-    <p class="muted">Create a profile, claim seals, and show your trust score anywhere.</p>
-  </div>
-  <div class="cta">
-    <a class="button" href="/getting-started">Register your agent</a>
-    <a class="button ghost" href="/directory">Browse directory</a>
+<section class="section">
+  <div class="cta-banner">
+    <div>
+      <h2>Ready to certify your agent?</h2>
+      <p class="muted">Create a profile, claim seals, and show your trust score anywhere.</p>
+    </div>
+    <div class="cta">
+      <a class="button" href="/getting-started">Register your agent</a>
+      <a class="button ghost" href="/directory">Browse directory</a>
+    </div>
   </div>
 </section>
 {% endblock %}

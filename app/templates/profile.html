@@ -25,7 +25,7 @@
 </section>
 {% endif %}
 
-<section class="profile-header section">
+<section class="profile-header section section-tight">
   <div class="profile-card">
     <div class="profile-top">
       <div class="avatar-wrap">
@@ -69,7 +69,7 @@
         <div class="meter">
           <div class="meter-fill" style="width: {{ (trust.total_score / 1000 * 100) | round(0) }}%; background: {% if trust.total_score >= 700 %}var(--success){% elif trust.total_score >= 400 %}var(--warning){% else %}var(--danger){% endif %};"></div>
         </div>
-        <small class="muted">{{ trust.success_rate * 100 | round(1) }}% success · {{ trust.report_count }} reports</small>
+        <small class="muted">{{ (trust.total_score / 1000 * 100) | round(0) }}% trust · {{ trust.success_rate * 100 | round(1) }}% success · {{ trust.report_count }} reports</small>
       </div>
     </div>
     <div class="profile-meta">
@@ -78,7 +78,12 @@
   </div>
 </section>
 
-<section class="profile-metrics">
+<section class="profile-metrics section section-tight">
+  <div class="metric-card">
+    <h3>Reports</h3>
+    <p class="lead">{{ behaviour.total_reports }}</p>
+    <p class="muted">User-submitted reports</p>
+  </div>
   <div class="metric-card">
     <h3>Success rate</h3>
     {% if behaviour.total_reports > 0 %}
@@ -89,31 +94,30 @@
     {% endif %}
   </div>
   <div class="metric-card">
-    <h3>Total tasks</h3>
-    <p class="lead">{{ behaviour.total_reports }}</p>
-    <p class="muted">User-submitted reports</p>
-  </div>
-  <div class="metric-card">
-    <h3>Streak</h3>
-    <p class="lead">{{ behaviour.streak or 0 }} days</p>
-    <p class="muted">Consistent success window</p>
-  </div>
-  <div class="metric-card">
-    <h3>Embed badge</h3>
-    <div class="badge-embed">
-      <div class="badge-preview">
-        <img src="{{ badge_url }}" alt="AgentSeal badge" />
-      </div>
-      <div class="embed-actions">
-        <input id="badge-embed-input" class="embed-input" type="text" readonly value="{{ badge_embed }}" />
-        <button class="button ghost small" type="button" id="copy-badge">Copy</button>
-      </div>
-      <small id="copy-status" class="muted"></small>
-    </div>
+    <h3>Trust score</h3>
+    <p class="lead">{{ trust.total_score | round(0) }}</p>
+    <p class="muted">{{ trust.tier | title }} tier</p>
   </div>
 </section>
 
-<section class="section">
+<section class="badge-embed-section section section-tight">
+  <div class="section-header compact">
+    <div>
+      <h2>Badge embed</h2>
+      <p class="muted">Add this badge to your website or README.</p>
+    </div>
+    <button class="button ghost small" type="button" id="copy-badge">Copy embed</button>
+  </div>
+  <div class="card badge-embed-card">
+    <div class="badge-preview">
+      <img src="{{ badge_url }}" alt="AgentSeal badge" />
+    </div>
+    <pre class="code-block" id="badge-embed-code">{{ badge_embed }}</pre>
+    <small id="copy-status" class="muted"></small>
+  </div>
+</section>
+
+<section class="section section-tight">
   <div class="section-header compact">
     <div>
       <h2>Seals & badges</h2>
@@ -139,7 +143,7 @@
 </section>
 
 {% if agent.owner_verified %}
-<section class="report-section section">
+<section class="report-section section section-tight">
   <div class="section-header compact">
     <div>
       <h2>Rate this agent</h2>
@@ -182,15 +186,20 @@
 <script>
   const copyButton = document.getElementById("copy-badge");
   const copyStatus = document.getElementById("copy-status");
-  const embedInput = document.getElementById("badge-embed-input");
-  if (copyButton && embedInput) {
+  const embedCode = document.getElementById("badge-embed-code");
+  if (copyButton && embedCode) {
     copyButton.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(embedInput.value);
+        await navigator.clipboard.writeText(embedCode.textContent.trim());
         copyStatus.textContent = "Badge embed copied.";
       } catch (err) {
-        embedInput.select();
+        const range = document.createRange();
+        range.selectNodeContents(embedCode);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
         document.execCommand("copy");
+        selection.removeAllRanges();
         copyStatus.textContent = "Badge embed copied.";
       }
     });

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Agent Directory — AgentSeal{% endblock %}
 {% block content %}
-<section class="directory-header section">
+<section class="directory-header section section-tight">
   <div>
     <h1>Agent Directory</h1>
     <p class="muted">Explore verified agents and their seals.</p>
-    <p class="muted">Showing {{ count }} agents</p>
+    <p class="muted">Showing {{ count }} of {{ total }} agents</p>
   </div>
 
   <form class="filter-bar" method="get" action="/directory">
@@ -52,18 +52,22 @@
 
     <div class="filter-group">
       <span class="muted">Sort</span>
-      <label class="filter-pill">
-        <select name="sort" onchange="this.form.submit()">
-          <option value="trust_score" {% if sort == "trust_score" %}selected{% endif %}>Trust Score</option>
-          <option value="name" {% if sort == "name" %}selected{% endif %}>Name</option>
-          <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>Newest</option>
-        </select>
-      </label>
+      {% set sort_options = [
+        ("trust_score", "Trust Score"),
+        ("name", "Name"),
+        ("created_at", "Newest")
+      ] %}
+      {% for value, label in sort_options %}
+        <label class="filter-pill {% if sort == value %}active{% endif %}">
+          <input type="radio" name="sort" value="{{ value }}" {% if sort == value %}checked{% endif %} onchange="this.form.submit()" />
+          <span>{{ label }}</span>
+        </label>
+      {% endfor %}
     </div>
   </form>
 </section>
 
-<section class="directory-grid section">
+<section class="directory-grid section section-tight">
   {% for agent in agents %}
     <a class="card agent-card" href="/@{{ agent.slug }}">
       <div class="agent-card-top">
@@ -73,18 +77,16 @@
           <span class="tag">{{ agent.platform }}</span>
         </div>
       </div>
-      <div>
-        <div class="trust-score">
-          <span class="muted">Trust score</span>
-          <strong>{{ agent.trust_score | round(0) if agent.trust_score else "—" }}</strong>
-        </div>
-        <div class="trust-bar">
-          <div class="trust-bar-fill" style="width: {{ (agent.trust_score / 1000 * 100) | round(0) if agent.trust_score else 10 }}%"></div>
-        </div>
+      <div class="trust-score">
+        <span class="muted">Trust score</span>
+        <strong>{{ agent.trust_score | round(0) if agent.trust_score else "—" }}</strong>
       </div>
       <div class="agent-card-meta">
         <span class="tag">{{ agent.seal_count }} seals</span>
         <span class="muted">@{{ agent.slug }}</span>
+      </div>
+      <div class="trust-bar">
+        <div class="trust-bar-fill" style="width: {{ (agent.trust_score / 1000 * 100) | round(0) if agent.trust_score else 10 }}%"></div>
       </div>
     </a>
   {% else %}

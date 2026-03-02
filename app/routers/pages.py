@@ -170,6 +170,9 @@ async def directory(request: Request, session: AsyncSession = Depends(get_sessio
     if tier:
         filters.append(Agent.trust_tier == tier)
 
+    total_result = await session.execute(select(func.count()).select_from(Agent).where(*filters))
+    total = total_result.scalar_one() or 0
+
     statement = (
         select(Agent, func.count(AgentSeal.id).label("seal_count"))
         .outerjoin(
@@ -211,6 +214,7 @@ async def directory(request: Request, session: AsyncSession = Depends(get_sessio
             "request": request,
             "agents": agents,
             "count": len(agents),
+            "total": total,
             "q": q or "",
             "platform": platform or "",
             "tier": tier or "",
