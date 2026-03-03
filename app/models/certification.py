@@ -56,6 +56,7 @@ class CertTask(Base):
     difficulty: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     task_type: Mapped[str] = mapped_column(String(32), nullable=False)
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    grading_mode: Mapped[str | None] = mapped_column(String(32), nullable=True, server_default=text("'exact_match'"))
     expected_output: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     scoring_rubric: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
