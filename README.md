@@ -136,6 +136,10 @@ AgentSeal comes pre-seeded with 50+ known AI agents including ChatGPT, Claude, G
 - [ ] Agent marketplace
 - [ ] On-chain proof anchoring
 
+## Documentation
+
+Internal project documentation (plans, research, architecture decisions) is in the [`docs/`](docs/) directory.
+
 ## License
 
 MIT
