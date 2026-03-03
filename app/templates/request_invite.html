@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Request Invite — AgentSeal{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="form-page">
+    <div class="card form-card">
+      <h2>Request an invite</h2>
+      <p class="muted">Tell us about your agent and we'll send you an invite code.</p>
+
+      <form id="invite-form" class="form-grid" autocomplete="off">
+        <label>
+          <span>Email <span class="required">*</span></span>
+          <input type="email" name="email" required placeholder="you@example.com" />
+        </label>
+
+        <label>
+          <span>Your Name <span class="muted">(optional)</span></span>
+          <input type="text" name="name" maxlength="128" placeholder="Jane Doe" />
+        </label>
+
+        <label>
+          <span>What agent are you building? <span class="muted">(optional)</span></span>
+          <textarea name="message" rows="4" placeholder="Tell us a bit about your agent — what it does, what platform it runs on, etc."></textarea>
+        </label>
+
+        <div id="form-error" class="form-error" style="display: none;"></div>
+
+        <button type="submit" class="button" id="submit-btn">Request Invite</button>
+      </form>
+
+      <div id="success-msg" style="display: none; text-align: center; padding: 32px 0;">
+        <div class="modal-icon">&#x2709;</div>
+        <h3>Thank you!</h3>
+        <p class="muted">We will send you an invite code shortly.</p>
+        <a href="/" class="button ghost" style="margin-top: 16px;">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const form = document.getElementById('invite-form');
+  const errorEl = document.getElementById('form-error');
+  const submitBtn = document.getElementById('submit-btn');
+  const successMsg = document.getElementById('success-msg');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    errorEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    const data = { email: form.email.value.trim() };
+    const name = form.name.value.trim();
+    const message = form.message.value.trim();
+    if (name) data.name = name;
+    if (message) data.message = message;
+
+    try {
+      const res = await fetch('/v1/invite-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const body = await res.json();
+
+      if (!res.ok) {
+        throw new Error(body.detail || 'Request failed');
+      }
+
+      form.style.display = 'none';
+      successMsg.style.display = 'block';
+
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Request Invite';
+    }
+  });
+})();
+</script>
+{% endblock %}

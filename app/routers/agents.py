@@ -7,8 +7,10 @@ from fastapi.responses import Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from pydantic import BaseModel, EmailStr
+
 from app.database import get_session
-from app.models import Agent, AgentSeal, Seal, ClaimRequest
+from app.models import Agent, AgentSeal, Seal, ClaimRequest, InviteCode, InviteRequest
 from app.schemas.agent import (
     AgentCardResponse,
     AgentCreate,
@@ -23,6 +25,7 @@ from app.schemas.agent import (
 from app.schemas.claim import ClaimCreate, ClaimResponse
 from app.schemas.trust import TrustAlgorithmResponse, TrustScoreResponse
 from app.services.agent_service import create_agent, get_agent_by_id, get_agent_by_slug, profile_url, update_agent
+from app.services.auth_service import verify_api_key
 from app.services.trust_service import compute_trust_breakdown, get_algorithm_spec
 
 router = APIRouter(prefix="/v1/agents", tags=["agents"])
@@ -147,6 +150,46 @@ async def list_agents(
     ]
 
     return AgentListResponse(agents=items, total=total, limit=limit, offset=offset)
+
+
+@router.get("/me", response_model=AgentProfileResponse)
+async def get_current_agent(request: Request, session: AsyncSession = Depends(get_session)):
+    api_key = request.headers.get("X-API-Key")
+    auth_header = request.headers.get("Authorization")
+    if not api_key and auth_header:
+        if auth_header.lower().startswith("bearer "):
+            api_key = auth_header.split(" ", 1)[1].strip()
+        else:
+            api_key = auth_header.strip()
+    if not api_key:
+        raise HTTPException(status_code=401, detail="missing api key")
+
+    key = await verify_api_key(session, api_key)
+    if not key:
+        raise HTTPException(status_code=401, detail="invalid api key")
+
+    agent = await get_agent_by_id(session, str(key.agent_id))
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+
+    agent_seals_list, seals_by_id = await get_agent_seals(session, agent.id)
+    seals = build_seal_summary(agent_seals_list, seals_by_id)
+
+    return AgentProfileResponse(
+        id=str(agent.id),
+        name=agent.name,
+        slug=agent.slug,
+        description=agent.description,
+        platform=agent.platform,
+        owner_verified=agent.owner_verified,
+        avatar_url=agent.avatar_url,
+        website_url=agent.website_url,
+        metadata=agent.agent_metadata,
+        seals=seals,
+        seal_count=len(seals),
+        created_at=agent.created_at,
+        profile_url=profile_url(agent.slug),
+    )
 
 
 @router.get("/{agent_id}", response_model=AgentProfileResponse)
@@ -411,3 +454,91 @@ trust_router = APIRouter(prefix="/v1/trust", tags=["trust"])
 @trust_router.get("/algorithm", response_model=TrustAlgorithmResponse)
 async def trust_algorithm():
     return TrustAlgorithmResponse(**get_algorithm_spec())
+
+
+# ---------------------------------------------------------------------------
+# Agent invite codes
+# ---------------------------------------------------------------------------
+
+
+@router.post("/{agent_id}/invites", status_code=201)
+async def create_invite_code(
+    agent_id: str,
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+):
+    agent = await get_agent_by_id(session, agent_id)
+    if not agent:
+        raise HTTPException(status_code=404, detail="agent not found")
+    if str(agent.id) != getattr(request.state, "agent_id", None):
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    code = f"invite_{secrets.token_hex(8)}"
+    invite = InviteCode(code=code, created_by=agent.id, max_uses=1)
+    session.add(invite)
+    await session.commit()
+    return {"code": code, "created_at": str(invite.created_at)}
+
+
+@router.get("/{agent_id}/invites")
+async def list_invite_codes(
+    agent_id: str,
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+):
+    api_key = request.headers.get("X-API-Key")
+    auth_header = request.headers.get("Authorization")
+    if not api_key and auth_header:
+        if auth_header.lower().startswith("bearer "):
+            api_key = auth_header.split(" ", 1)[1].strip()
+        else:
+            api_key = auth_header.strip()
+    if not api_key:
+        raise HTTPException(status_code=401, detail="missing api key")
+
+    key = await verify_api_key(session, api_key)
+    if not key or str(key.agent_id) != agent_id:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    result = await session.execute(
+        select(InviteCode)
+        .where(InviteCode.created_by == agent_id)
+        .order_by(InviteCode.created_at.desc())
+    )
+    codes = result.scalars().all()
+    return [
+        {
+            "code": c.code,
+            "max_uses": c.max_uses,
+            "use_count": c.use_count,
+            "created_at": str(c.created_at),
+        }
+        for c in codes
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Invite requests (public, no auth)
+# ---------------------------------------------------------------------------
+invite_request_router = APIRouter(prefix="/v1/invite-requests", tags=["invite-requests"])
+
+
+class InviteRequestCreate(BaseModel):
+    email: EmailStr
+    name: str | None = None
+    message: str | None = None
+
+
+@invite_request_router.post("", status_code=201)
+async def create_invite_request(
+    payload: InviteRequestCreate,
+    session: AsyncSession = Depends(get_session),
+):
+    req = InviteRequest(
+        email=payload.email,
+        name=payload.name,
+        message=payload.message,
+    )
+    session.add(req)
+    await session.commit()
+    return {"message": "Thank you! We will send you an invite code shortly."}

@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — AgentSeal{% endblock %}
+{% block content %}
+<section class="section">
+  <!-- Auth gate -->
+  <div id="auth-gate" class="form-page">
+    <div class="card form-card">
+      <h2>Agent Dashboard</h2>
+      <p class="muted">Enter your API key to access your dashboard.</p>
+      <form id="auth-form" class="form-grid">
+        <label>
+          <span>API Key</span>
+          <input type="text" id="key-input" placeholder="as_live_xxxxxxxxxxxxxxxx" required />
+        </label>
+        <div id="auth-error" class="form-error" style="display: none;"></div>
+        <button type="submit" class="button">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard content (hidden until auth) -->
+  <div id="dashboard" style="display: none;">
+    <div class="dash-header">
+      <div class="dash-agent-info">
+        <div id="dash-avatar" class="avatar-xl"></div>
+        <div>
+          <h1 id="dash-name"></h1>
+          <div class="dash-meta">
+            <span class="tag" id="dash-platform"></span>
+            <a id="dash-profile-link" class="text-link" href="#">View public profile</a>
+          </div>
+        </div>
+      </div>
+      <div class="trust-card">
+        <span class="muted">Trust Score</span>
+        <h2 id="dash-trust-score">—</h2>
+        <span class="tag" id="dash-grade">—</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="dash-tabs">
+      <button class="dash-tab active" data-tab="profile">Profile</button>
+      <button class="dash-tab" data-tab="seals">Seals</button>
+      <button class="dash-tab" data-tab="certs">Certification</button>
+      <button class="dash-tab" data-tab="reports">Reports</button>
+      <button class="dash-tab" data-tab="badge">Badge</button>
+      <button class="dash-tab" data-tab="invites">Invites</button>
+    </div>
+
+    <!-- Tab: Profile -->
+    <div class="dash-panel active" id="panel-profile">
+      <div class="card">
+        <h3>Edit Profile</h3>
+        <form id="edit-form" class="form-grid">
+          <label>
+            <span>Description</span>
+            <textarea name="description" rows="3" id="edit-description" placeholder="What does your agent do?"></textarea>
+          </label>
+          <label>
+            <span>Website URL</span>
+            <input type="url" name="website_url" id="edit-website" placeholder="https://example.com" />
+          </label>
+          <label>
+            <span>Avatar URL</span>
+            <input type="url" name="avatar_url" id="edit-avatar" placeholder="https://example.com/avatar.png" />
+          </label>
+          <div id="edit-error" class="form-error" style="display: none;"></div>
+          <div id="edit-success" class="form-success" style="display: none;">Profile updated!</div>
+          <button type="submit" class="button">Save Changes</button>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <h3>GitHub Verification</h3>
+        <p class="muted" id="github-status">Verify your identity by linking a GitHub account.</p>
+        <a id="github-verify-btn" class="button ghost small" href="#">Verify with GitHub</a>
+      </div>
+    </div>
+
+    <!-- Tab: Seals -->
+    <div class="dash-panel" id="panel-seals">
+      <div class="card">
+        <h3>Your Seals</h3>
+        <div id="seals-list" class="badge-row"></div>
+        <p id="seals-empty" class="muted" style="display: none;">No seals earned yet.</p>
+      </div>
+    </div>
+
+    <!-- Tab: Certification -->
+    <div class="dash-panel" id="panel-certs">
+      <div class="card">
+        <h3>Available Tests</h3>
+        <div id="cert-list" class="grid"></div>
+        <p id="cert-empty" class="muted" style="display: none;">No certification tests available.</p>
+      </div>
+    </div>
+
+    <!-- Tab: Reports -->
+    <div class="dash-panel" id="panel-reports">
+      <div class="card">
+        <h3>Recent Reports</h3>
+        <div id="reports-list"></div>
+        <p id="reports-empty" class="muted" style="display: none;">No reports yet.</p>
+      </div>
+    </div>
+
+    <!-- Tab: Badge -->
+    <div class="dash-panel" id="panel-badge">
+      <div class="card badge-embed-card">
+        <h3>Embed Badge</h3>
+        <p class="muted">Show your trust badge on your README or website.</p>
+        <div class="badge-preview" id="badge-preview"></div>
+        <label>
+          <span>Badge URL</span>
+          <div class="embed-actions">
+            <input type="text" class="embed-input" id="badge-url" readonly />
+            <button type="button" class="button small" id="copy-badge-url">Copy</button>
+          </div>
+        </label>
+        <label>
+          <span>HTML Embed</span>
+          <div class="embed-actions">
+            <input type="text" class="embed-input" id="badge-html" readonly />
+            <button type="button" class="button small" id="copy-badge-html">Copy</button>
+          </div>
+        </label>
+        <label>
+          <span>Markdown</span>
+          <div class="embed-actions">
+            <input type="text" class="embed-input" id="badge-md" readonly />
+            <button type="button" class="button small" id="copy-badge-md">Copy</button>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tab: Invites -->
+    <div class="dash-panel" id="panel-invites">
+      <div class="card">
+        <h3>Your Invite Codes</h3>
+        <p class="muted">Share these codes so others can register.</p>
+        <div id="invites-list" style="margin: 16px 0;"></div>
+        <button type="button" class="button small" id="generate-invite-btn">Generate New Code</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  let API_KEY = '';
+  let AGENT = null;
+
+  // Check for key in query param or localStorage
+  var params = new URLSearchParams(window.location.search);
+  var qKey = params.get('key');
+  var storedKey = localStorage.getItem('as_api_key');
+
+  if (qKey) {
+    API_KEY = qKey;
+    localStorage.setItem('as_api_key', qKey);
+    window.history.replaceState({}, '', '/dashboard');
+    loadDashboard();
+  } else if (storedKey) {
+    API_KEY = storedKey;
+    loadDashboard();
+  }
+
+  // Auth form
+  document.getElementById('auth-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var key = document.getElementById('key-input').value.trim();
+    if (!key) return;
+    API_KEY = key;
+    localStorage.setItem('as_api_key', key);
+    loadDashboard();
+  });
+
+  function authHeaders() {
+    return { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' };
+  }
+
+  function escapeText(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.textContent;
+  }
+
+  async function loadDashboard() {
+    try {
+      var res = await fetch('/v1/agents/me', { headers: authHeaders() });
+      if (!res.ok) {
+        var body = await res.json();
+        throw new Error(body.detail || 'Authentication failed');
+      }
+      AGENT = await res.json();
+
+      document.getElementById('auth-gate').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+
+      renderAgent();
+      loadTrust();
+      loadSeals();
+      loadCerts();
+      loadReports();
+      renderBadge();
+      loadInvites();
+    } catch (err) {
+      document.getElementById('auth-error').textContent = err.message;
+      document.getElementById('auth-error').style.display = 'block';
+      document.getElementById('auth-gate').style.display = '';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+  }
+
+  function renderAgent() {
+    var a = AGENT;
+    document.getElementById('dash-name').textContent = a.name;
+    document.getElementById('dash-platform').textContent = a.platform;
+    document.getElementById('dash-profile-link').href = '/@' + encodeURIComponent(a.slug);
+    document.getElementById('dash-avatar').textContent = a.name.substring(0, 2).toUpperCase();
+
+    if (a.avatar_url) {
+      var av = document.getElementById('dash-avatar');
+      av.style.backgroundImage = 'url(' + encodeURI(a.avatar_url) + ')';
+      av.style.backgroundSize = 'cover';
+      av.textContent = '';
+    }
+
+    document.getElementById('edit-description').value = a.description || '';
+    document.getElementById('edit-website').value = a.website_url || '';
+    document.getElementById('edit-avatar').value = a.avatar_url || '';
+
+    if (a.owner_verified) {
+      document.getElementById('github-status').textContent = 'GitHub verified!';
+      document.getElementById('github-verify-btn').style.display = 'none';
+    } else {
+      document.getElementById('github-verify-btn').href = '/v1/auth/github?agent_id=' + encodeURIComponent(a.id);
+    }
+  }
+
+  async function loadTrust() {
+    try {
+      var res = await fetch('/v1/agents/' + encodeURIComponent(AGENT.id) + '/trust');
+      if (res.ok) {
+        var t = await res.json();
+        document.getElementById('dash-trust-score').textContent = Math.round(t.total_score);
+        document.getElementById('dash-grade').textContent = 'Grade: ' + escapeText(t.grade);
+      }
+    } catch(e) {}
+  }
+
+  function loadSeals() {
+    var list = document.getElementById('seals-list');
+    var empty = document.getElementById('seals-empty');
+    list.textContent = '';
+    if (!AGENT.seals || AGENT.seals.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    AGENT.seals.forEach(function(s) {
+      var el = document.createElement('span');
+      el.className = 'emoji-badge';
+      el.textContent = (s.icon_emoji || '') + ' ' + s.seal_name;
+      list.appendChild(el);
+    });
+  }
+
+  async function loadCerts() {
+    try {
+      var res = await fetch('/v1/certifications');
+      if (!res.ok) return;
+      var data = await res.json();
+      var tests = data.tests || data;
+      var container = document.getElementById('cert-list');
+      var empty = document.getElementById('cert-empty');
+      container.textContent = '';
+
+      if (!tests || tests.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      tests.forEach(function(test) {
+        var card = document.createElement('div');
+        card.className = 'card cert-card ' + (test.tier || '').toLowerCase();
+
+        var top = document.createElement('div');
+        top.className = 'card-top';
+        var emoji = document.createElement('div');
+        emoji.className = 'emoji';
+        emoji.textContent = '\uD83C\uDF93';
+        var tier = document.createElement('span');
+        tier.className = 'cert-tier ' + (test.tier || '').toLowerCase();
+        tier.textContent = test.tier || 'Standard';
+        top.appendChild(emoji);
+        top.appendChild(tier);
+
+        var h3 = document.createElement('h3');
+        h3.textContent = test.name;
+
+        var p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = test.description || '';
+
+        card.appendChild(top);
+        card.appendChild(h3);
+        card.appendChild(p);
+        container.appendChild(card);
+      });
+    } catch(e) {}
+  }
+
+  async function loadReports() {
+    try {
+      var res = await fetch('/v1/agents/' + encodeURIComponent(AGENT.id) + '/reports');
+      if (!res.ok) {
+        document.getElementById('reports-empty').style.display = 'block';
+        return;
+      }
+      var data = await res.json();
+      var reports = data.reports || data;
+      var container = document.getElementById('reports-list');
+      var empty = document.getElementById('reports-empty');
+      container.textContent = '';
+
+      if (!reports || reports.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      reports.forEach(function(r) {
+        var row = document.createElement('div');
+        row.className = 'report-row';
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = r.outcome || r.type || 'report';
+        var ts = document.createElement('span');
+        ts.className = 'muted';
+        ts.textContent = r.created_at || '';
+        row.appendChild(tag);
+        row.appendChild(document.createTextNode(' '));
+        row.appendChild(ts);
+        container.appendChild(row);
+      });
+    } catch(e) {
+      document.getElementById('reports-empty').style.display = 'block';
+    }
+  }
+
+  function renderBadge() {
+    var badgeUrl = window.location.origin + '/v1/agents/' + encodeURIComponent(AGENT.id) + '/badge.svg';
+    var profileUrl = window.location.origin + '/@' + encodeURIComponent(AGENT.slug);
+
+    var preview = document.getElementById('badge-preview');
+    preview.textContent = '';
+    var img = document.createElement('img');
+    img.src = badgeUrl;
+    img.alt = 'AgentSeal badge';
+    preview.appendChild(img);
+
+    document.getElementById('badge-url').value = badgeUrl;
+    document.getElementById('badge-html').value = '<a href="' + profileUrl + '"><img src="' + badgeUrl + '" alt="AgentSeal badge" /></a>';
+    document.getElementById('badge-md').value = '[![AgentSeal](' + badgeUrl + ')](' + profileUrl + ')';
+  }
+
+  async function loadInvites() {
+    try {
+      var res = await fetch('/v1/agents/' + encodeURIComponent(AGENT.id) + '/invites', { headers: authHeaders() });
+      if (!res.ok) return;
+      var codes = await res.json();
+      renderInvites(codes);
+    } catch(e) {}
+  }
+
+  function renderInvites(codes) {
+    var container = document.getElementById('invites-list');
+    container.textContent = '';
+    if (!codes || codes.length === 0) {
+      var p = document.createElement('p');
+      p.className = 'muted';
+      p.textContent = 'No invite codes yet.';
+      container.appendChild(p);
+      return;
+    }
+    codes.forEach(function(c) {
+      var row = document.createElement('div');
+      row.className = 'invite-row';
+
+      var code = document.createElement('code');
+      code.textContent = c.code;
+
+      var tag = document.createElement('span');
+      var used = c.use_count >= (c.max_uses || 999);
+      tag.className = 'tag' + (used ? ' muted' : '');
+      tag.textContent = used ? 'Used' : 'Available';
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'button small ghost';
+      btn.textContent = 'Copy';
+      btn.addEventListener('click', function() {
+        navigator.clipboard.writeText(c.code).then(function() {
+          btn.textContent = 'Copied!';
+          setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+        });
+      });
+
+      row.appendChild(code);
+      row.appendChild(tag);
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // Generate invite
+  document.getElementById('generate-invite-btn').addEventListener('click', async function() {
+    try {
+      var res = await fetch('/v1/agents/' + encodeURIComponent(AGENT.id) + '/invites', {
+        method: 'POST',
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        loadInvites();
+      }
+    } catch(e) {}
+  });
+
+  // Edit form
+  document.getElementById('edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var errorEl = document.getElementById('edit-error');
+    var successEl = document.getElementById('edit-success');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    var data = {};
+    var desc = document.getElementById('edit-description').value.trim();
+    var web = document.getElementById('edit-website').value.trim();
+    var av = document.getElementById('edit-avatar').value.trim();
+    if (desc) data.description = desc;
+    if (web) data.website_url = web;
+    if (av) data.avatar_url = av;
+
+    try {
+      var res = await fetch('/v1/agents/' + encodeURIComponent(AGENT.id), {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        var body = await res.json();
+        throw new Error(body.detail || 'Update failed');
+      }
+      AGENT = await res.json();
+      renderAgent();
+      successEl.style.display = 'block';
+      setTimeout(function() { successEl.style.display = 'none'; }, 3000);
+    } catch(err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    }
+  });
+
+  // Tab switching
+  document.querySelectorAll('.dash-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.dash-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.dash-panel').forEach(function(p) { p.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('panel-' + this.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Copy helpers for badge
+  ['copy-badge-url', 'copy-badge-html', 'copy-badge-md'].forEach(function(id) {
+    document.getElementById(id).addEventListener('click', function() {
+      var input = this.parentElement.querySelector('.embed-input');
+      navigator.clipboard.writeText(input.value).then(function() {
+        var btn = document.getElementById(id);
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

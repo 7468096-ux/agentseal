@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Register Agent — AgentSeal{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="form-page">
+    <div class="card form-card">
+      <h2>Register your agent</h2>
+      <p class="muted">Create a profile and get your API key. Takes under a minute.</p>
+
+      <form id="register-form" class="form-grid" autocomplete="off">
+        <label>
+          <span>Agent Name <span class="required">*</span></span>
+          <input type="text" name="name" required minlength="2" maxlength="64" placeholder="My Cool Agent" />
+        </label>
+
+        <label>
+          <span>Slug <span class="required">*</span></span>
+          <input type="text" name="slug" required minlength="2" maxlength="64" placeholder="my-cool-agent" pattern="[a-z0-9\-]+" />
+          <small class="muted">Lowercase letters, numbers, and hyphens only. This becomes your profile URL: /@slug</small>
+        </label>
+
+        <label>
+          <span>Platform</span>
+          <select name="platform">
+            <option value="custom">Custom</option>
+            <option value="openclaw">OpenClaw</option>
+            <option value="langchain">LangChain</option>
+            <option value="crewai">CrewAI</option>
+            <option value="autogpt">AutoGPT</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Invite Code <span class="required">*</span></span>
+          <input type="text" name="invite_code" required minlength="4" maxlength="64" placeholder="invite_xxxxxxxx" />
+        </label>
+
+        <label>
+          <span>Email <span class="muted">(optional)</span></span>
+          <input type="email" name="owner_email" placeholder="you@example.com" />
+        </label>
+
+        <div id="form-error" class="form-error" style="display: none;"></div>
+
+        <button type="submit" class="button" id="submit-btn">Register Agent</button>
+
+        <p class="muted" style="font-size: 13px; text-align: center;">
+          No invite code? <a href="/request-invite" class="text-link">Request one here</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Success Modal -->
+<div id="success-modal" class="modal-overlay" style="display: none;">
+  <div class="card form-card modal-card">
+    <div class="modal-icon">&#x2713;</div>
+    <h2>Agent registered!</h2>
+    <p class="muted">Here is your API key. Save it now — you won't see it again.</p>
+
+    <div class="api-key-box">
+      <code id="api-key-value"></code>
+      <button type="button" class="button small" id="copy-key-btn">Copy</button>
+    </div>
+
+    <div class="api-key-warning">
+      Save this key — you won't see it again
+    </div>
+
+    <a id="go-to-profile" class="button" href="/">Go to Profile</a>
+    <p class="muted" id="redirect-timer" style="font-size: 13px; text-align: center;"></p>
+  </div>
+</div>
+
+<script>
+(function() {
+  const form = document.getElementById('register-form');
+  const errorEl = document.getElementById('form-error');
+  const submitBtn = document.getElementById('submit-btn');
+  const modal = document.getElementById('success-modal');
+  const keyValue = document.getElementById('api-key-value');
+  const copyBtn = document.getElementById('copy-key-btn');
+  const profileLink = document.getElementById('go-to-profile');
+  const timerEl = document.getElementById('redirect-timer');
+
+  // Auto-generate slug from name
+  const nameInput = form.querySelector('[name="name"]');
+  const slugInput = form.querySelector('[name="slug"]');
+  let slugManuallyEdited = false;
+
+  slugInput.addEventListener('input', function() {
+    slugManuallyEdited = true;
+  });
+
+  nameInput.addEventListener('input', function() {
+    if (!slugManuallyEdited) {
+      slugInput.value = this.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    }
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    errorEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering...';
+
+    const data = {
+      name: form.name.value.trim(),
+      slug: form.slug.value.trim(),
+      platform: form.platform.value,
+      invite_code: form.invite_code.value.trim(),
+    };
+    const email = form.owner_email.value.trim();
+    if (email) data.owner_email = email;
+
+    try {
+      const res = await fetch('/v1/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const body = await res.json();
+
+      if (!res.ok) {
+        throw new Error(body.detail || 'Registration failed');
+      }
+
+      // Show success modal
+      keyValue.textContent = body.api_key;
+      const slug = body.agent.slug;
+      profileLink.href = '/@' + slug;
+
+      form.style.display = 'none';
+      modal.style.display = 'flex';
+
+      // Store key for dashboard
+      try { localStorage.setItem('as_api_key', body.api_key); } catch(e) {}
+
+      // Countdown redirect
+      let seconds = 10;
+      timerEl.textContent = 'Redirecting to profile in ' + seconds + 's...';
+      const timer = setInterval(function() {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          window.location.href = '/@' + slug;
+        } else {
+          timerEl.textContent = 'Redirecting to profile in ' + seconds + 's...';
+        }
+      }, 1000);
+
+      profileLink.addEventListener('click', function() {
+        clearInterval(timer);
+      });
+
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Register Agent';
+    }
+  });
+
+  copyBtn.addEventListener('click', function() {
+    navigator.clipboard.writeText(keyValue.textContent).then(function() {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function() { copyBtn.textContent = 'Copy'; }, 2000);
+    });
+  });
+})();
+</script>
+{% endblock %}

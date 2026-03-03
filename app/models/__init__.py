@@ -6,6 +6,7 @@ from app.models.invite_code import InviteCode
 from app.models.certification import CertTest, CertAttempt, CertTask
 from app.models.behaviour import BehaviourReport
 from app.models.claim import ClaimRequest
+from app.models.invite_request import InviteRequest
 
 __all__ = [
     "Agent",
@@ -19,4 +20,5 @@ __all__ = [
     "CertTask",
     "BehaviourReport",
     "ClaimRequest",
+    "InviteRequest",
 ]

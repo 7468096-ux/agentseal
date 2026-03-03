@@ -11,6 +11,7 @@ from app.services.auth_service import verify_api_key
 EXEMPT_PATHS = {
     "/v1/agents",
     "/v1/webhooks/stripe",
+    "/v1/invite-requests",
 }
 
 

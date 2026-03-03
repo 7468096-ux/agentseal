@@ -20,6 +20,7 @@ from app.models import (
     CertTask,
     BehaviourReport,
     ClaimRequest,
+    InviteRequest,
 )  # noqa: F401
 from app.config import settings
 
@@ -40,6 +41,7 @@ app.add_middleware(AuthMiddleware)
 
 app.include_router(agents.router)
 app.include_router(agents.trust_router)
+app.include_router(agents.invite_request_router)
 app.include_router(seals.router)
 app.include_router(webhooks.router)
 app.include_router(certification.router)

@@ -251,6 +251,21 @@ async def seals_page(request: Request, session: AsyncSession = Depends(get_sessi
     )
 
 
+@router.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+
+@router.get("/request-invite", response_class=HTMLResponse)
+async def request_invite_page(request: Request):
+    return templates.TemplateResponse("request_invite.html", {"request": request})
+
+
 @router.get("/getting-started", response_class=HTMLResponse)
 async def getting_started(request: Request):
     return templates.TemplateResponse("getting_started.html", {"request": request})
