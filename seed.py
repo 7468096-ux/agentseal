@@ -2190,7 +2190,7 @@ async def seed():
             if not existing.scalar_one_or_none():
                 session.add(AgentSeal(agent_id=alice.id, seal_id=seal.id))
 
-        await seed_known_agents(session)
+        # Pre-seeded known agents removed — directory is for real registered agents only.
 
         existing_invites = await session.execute(select(InviteCode).where(InviteCode.created_by == alice.id))
         if len(existing_invites.scalars().all()) < 5:
