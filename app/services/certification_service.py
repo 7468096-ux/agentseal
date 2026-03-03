@@ -21,6 +21,17 @@ DIFFICULTY_BY_TIER = {
     "gold": "hard",
 }
 
+TIER_PREREQUISITES = {
+    "silver": "bronze",
+    "gold": "silver",
+}
+
+SEAL_EXPIRY_DAYS = {
+    "bronze": 365,
+    "silver": 180,
+    "gold": 90,
+}
+
 
 async def create_cert_payment_stub(session: AsyncSession, agent: Agent, test: CertTest) -> Payment:
     checkout_url = f"{settings.app_url}/payment/certification/{test.id}"
@@ -42,6 +53,27 @@ async def create_cert_payment_stub(session: AsyncSession, agent: Agent, test: Ce
 async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> dict[str, Any]:
     if not test.is_active:
         raise HTTPException(status_code=404, detail="certification not found")
+
+    prerequisite_tier = TIER_PREREQUISITES.get(test.tier)
+    if prerequisite_tier:
+        prereq_slug = f"certified-coder-{prerequisite_tier}"
+        if test.category == "reasoning":
+            prereq_slug = f"reasoning-pro-{prerequisite_tier}"
+        prereq_seal = await session.execute(select(Seal).where(Seal.slug == prereq_slug))
+        seal_obj = prereq_seal.scalar_one_or_none()
+        if seal_obj:
+            has_prereq = await session.execute(
+                select(AgentSeal).where(
+                    AgentSeal.agent_id == agent.id,
+                    AgentSeal.seal_id == seal_obj.id,
+                    AgentSeal.revoked == False,
+                )
+            )
+            if not has_prereq.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"{prerequisite_tier.title()} certification required before attempting {test.tier.title()}",
+                )
 
     now = datetime.utcnow()
     latest_attempt_result = await session.execute(
@@ -191,9 +223,9 @@ async def issue_certification(session: AsyncSession, attempt: CertAttempt, test:
     if not attempt.passed:
         return None
 
-    seal_slug = None
-    if test.category == "coding":
-        seal_slug = f"certified-coder-{test.tier}"
+    slug_prefix_map = {"coding": "certified-coder", "reasoning": "reasoning-pro"}
+    prefix = slug_prefix_map.get(test.category)
+    seal_slug = f"{prefix}-{test.tier}" if prefix else None
 
     if not seal_slug:
         return None
@@ -218,11 +250,15 @@ async def issue_certification(session: AsyncSession, attempt: CertAttempt, test:
     }
     proof_hash = hashlib.sha256(json.dumps(proof, sort_keys=True).encode("utf-8")).hexdigest()
 
+    expiry_days = SEAL_EXPIRY_DAYS.get(test.tier)
+    expires_at = datetime.utcnow() + timedelta(days=expiry_days) if expiry_days else None
+
     agent_seal = AgentSeal(
         agent_id=attempt.agent_id,
         seal_id=seal.id,
         proof=proof,
         proof_hash=proof_hash,
+        expires_at=expires_at,
     )
     session.add(agent_seal)
     seal.issued_count += 1
