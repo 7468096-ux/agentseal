@@ -3,8 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
+
+
+def _utcnow() -> datetime:
+    """Return timezone-aware UTC now."""
+    return datetime.now(timezone.utc)
 
 from fastapi import HTTPException
 from sqlalchemy import func, select
@@ -75,7 +80,7 @@ async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> 
                     detail=f"{prerequisite_tier.title()} certification required before attempting {test.tier.title()}",
                 )
 
-    now = datetime.utcnow()
+    now = _utcnow()
     latest_attempt_result = await session.execute(
         select(CertAttempt)
         .where(
@@ -94,11 +99,11 @@ async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> 
             remaining_hours = math.ceil((cooldown - elapsed).total_seconds() / 3600)
             raise HTTPException(status_code=400, detail=f"Please wait {remaining_hours} hours")
 
-    month_start = datetime(now.year, now.month, 1)
+    month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
     if now.month == 12:
-        next_month = datetime(now.year + 1, 1, 1)
+        next_month = datetime(now.year + 1, 1, 1, tzinfo=timezone.utc)
     else:
-        next_month = datetime(now.year, now.month + 1, 1)
+        next_month = datetime(now.year, now.month + 1, 1, tzinfo=timezone.utc)
     monthly_count_result = await session.execute(
         select(func.count(CertAttempt.id)).where(
             CertAttempt.agent_id == agent.id,
@@ -153,7 +158,7 @@ async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> 
         test_id=test.id,
         status="in_progress",
         tasks=attempt_tasks,
-        started_at=datetime.utcnow(),
+        started_at=_utcnow(),
     )
     session.add(attempt)
     await session.flush()
@@ -164,7 +169,7 @@ async def start_attempt(session: AsyncSession, agent: Agent, test: CertTest) -> 
 async def submit_answers(session: AsyncSession, attempt: CertAttempt, answers: dict[str, Any]) -> CertAttempt:
     attempt.answers = answers
     attempt.status = "completed"
-    attempt.completed_at = datetime.utcnow()
+    attempt.completed_at = _utcnow()
     await session.flush()
     return attempt
 
@@ -274,12 +279,12 @@ async def issue_certification(session: AsyncSession, attempt: CertAttempt, test:
         "test_id": str(test.id),
         "score": attempt.score,
         "passed": attempt.passed,
-        "graded_at": datetime.utcnow().isoformat(),
+        "graded_at": _utcnow().isoformat(),
     }
     proof_hash = hashlib.sha256(json.dumps(proof, sort_keys=True).encode("utf-8")).hexdigest()
 
     expiry_days = SEAL_EXPIRY_DAYS.get(test.tier)
-    expires_at = datetime.utcnow() + timedelta(days=expiry_days) if expiry_days else None
+    expires_at = _utcnow() + timedelta(days=expiry_days) if expiry_days else None
 
     agent_seal = AgentSeal(
         agent_id=attempt.agent_id,
