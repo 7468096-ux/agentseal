@@ -21,9 +21,9 @@ from app.schemas.agent import (
     AgentSealSummary,
 )
 from app.schemas.claim import ClaimCreate, ClaimResponse
-from app.schemas.trust import TrustScoreResponse
+from app.schemas.trust import TrustAlgorithmResponse, TrustScoreResponse
 from app.services.agent_service import create_agent, get_agent_by_id, get_agent_by_slug, profile_url, update_agent
-from app.services.trust_service import compute_trust_breakdown
+from app.services.trust_service import compute_trust_breakdown, get_algorithm_spec
 
 router = APIRouter(prefix="/v1/agents", tags=["agents"])
 
@@ -400,3 +400,14 @@ async def agent_badge_by_slug(slug: str, session: AsyncSession = Depends(get_ses
     svg = _build_badge_svg("AgentSeal", value, color)
     headers = {"Cache-Control": "public, max-age=3600"}
     return Response(content=svg, media_type="image/svg+xml", headers=headers)
+
+
+# ---------------------------------------------------------------------------
+# Trust algorithm endpoint (separate prefix)
+# ---------------------------------------------------------------------------
+trust_router = APIRouter(prefix="/v1/trust", tags=["trust"])
+
+
+@trust_router.get("/algorithm", response_model=TrustAlgorithmResponse)
+async def trust_algorithm():
+    return TrustAlgorithmResponse(**get_algorithm_spec())

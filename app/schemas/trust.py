@@ -5,13 +5,19 @@ from pydantic import BaseModel
 
 class TrustScoreResponse(BaseModel):
     total_score: float
-    tier: str
+    grade: str
     certification_score: float
     behaviour_score: float
-    tenure_score: float
     activity_score: float
-    verification_score: float
-    seal_count_score: float
+    tenure_score: float
+    identity_score: float
     report_count: int
     success_rate: float
-    seal_count: int
+    certification_count: int
+
+
+class TrustAlgorithmResponse(BaseModel):
+    version: str
+    max_score: int
+    components: dict
+    grades: dict

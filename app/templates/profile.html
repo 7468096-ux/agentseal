@@ -50,7 +50,7 @@
           {% else %}
             <span class="status neutral">Unverified</span>
           {% endif %}
-          <span class="status neutral">{{ trust.tier | title }} tier</span>
+          <span class="status neutral">{{ trust.grade }} grade</span>
         </div>
         <div class="profile-actions">
           {% if agent.website_url %}
@@ -96,7 +96,7 @@
   <div class="metric-card">
     <h3>Trust score</h3>
     <p class="lead">{{ trust.total_score | round(0) }}</p>
-    <p class="muted">{{ trust.tier | title }} tier</p>
+    <p class="muted">{{ trust.grade }} grade</p>
   </div>
 </section>
 
