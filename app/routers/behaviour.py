@@ -34,7 +34,23 @@ async def submit_report_endpoint(
     reporter_agent = None
     reporter_agent_id = getattr(request.state, "agent_id", None)
     if reporter_agent_id:
+        # Anti-abuse: cannot report yourself
+        if str(reporter_agent_id) == str(agent_id):
+            raise HTTPException(status_code=400, detail="Cannot submit a report for yourself")
         reporter_agent = await get_agent_by_id(session, reporter_agent_id)
+        # Anti-abuse: one report per reporter per agent per 24h
+        if reporter_agent:
+            dup_result = await session.execute(
+                select(func.count())
+                .select_from(BehaviourReport)
+                .where(
+                    BehaviourReport.reporter_agent_id == reporter_agent_id,
+                    BehaviourReport.subject_agent_id == agent_id,
+                    BehaviourReport.created_at >= func.now() - text("interval '1 day'"),
+                )
+            )
+            if (dup_result.scalar_one() or 0) >= 1:
+                raise HTTPException(status_code=429, detail="One report per agent per 24 hours")
 
     report = await submit_report(session, subject_agent, reporter_agent, payload.model_dump(exclude_none=True))
     await session.commit()

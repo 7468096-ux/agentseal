@@ -1,73 +1,57 @@
-from __future__ import annotations
+"""
+Rate limiting middleware for AgentSeal.
 
-import time
-from dataclasses import dataclass
+Limits:
+- Default: 100 requests/minute per IP
+- Registration: 5/hour per IP
+- Behaviour reports: 20/hour per key/IP
+- Certification attempts: 10/hour per key/IP
+"""
+
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
 
 from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import JSONResponse
-
-from app.config import settings
+from fastapi.responses import JSONResponse
 
 
-@dataclass
-class RateConfig:
-    max_requests: int
-    window_seconds: int
+def _get_api_key_or_ip(request: Request) -> str:
+    auth = request.headers.get("Authorization", "")
+    api_key = request.headers.get("X-API-Key", "")
+    if auth.startswith("Bearer "):
+        return f"key:{auth[7:][:16]}"
+    if api_key:
+        return f"key:{api_key[:16]}"
+    return f"ip:{get_remote_address(request)}"
 
 
-class InMemoryRateLimiter:
-    def __init__(self) -> None:
-        self.storage: dict[str, list[float]] = {}
-
-    def allow(self, key: str, config: RateConfig) -> bool:
-        now = time.time()
-        window_start = now - config.window_seconds
-        timestamps = [t for t in self.storage.get(key, []) if t >= window_start]
-        if len(timestamps) >= config.max_requests:
-            self.storage[key] = timestamps
-            return False
-        timestamps.append(now)
-        self.storage[key] = timestamps
-        return True
+limiter = Limiter(
+    key_func=_get_api_key_or_ip,
+    default_limits=["100/minute"],
+    storage_uri="memory://",
+)
 
 
-limiter = InMemoryRateLimiter()
+def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "error": "rate_limit_exceeded",
+            "message": f"Too many requests. Limit: {exc.detail}",
+            "retry_after_seconds": 60,
+        },
+    )
 
 
-def parse_rate(rate: str) -> RateConfig:
-    value, per = rate.split("/")
-    value_int = int(value)
-    if per == "minute":
-        seconds = 60
-    elif per == "hour":
-        seconds = 3600
-    else:
-        seconds = 60
-    return RateConfig(max_requests=value_int, window_seconds=seconds)
+class RateLimitMiddleware(SlowAPIMiddleware):
+    """Thin wrapper so main.py can add_middleware(RateLimitMiddleware)."""
+    pass
 
 
-class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
-        super().__init__(app)
-        self.register_rate = parse_rate(settings.rate_limit_register)
-        self.api_rate = parse_rate(settings.rate_limit_api)
-
-    async def dispatch(self, request: Request, call_next):
-        if request.method == "POST" and request.url.path == "/v1/agents":
-            ip = request.client.host if request.client else "unknown"
-            if not limiter.allow(f"register:{ip}", self.register_rate):
-                return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
-
-        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            auth_header = request.headers.get("Authorization")
-            if auth_header and auth_header.lower().startswith("bearer "):
-                api_key = auth_header.split(" ", 1)[1].strip()
-            elif auth_header:
-                api_key = auth_header.strip()
-            else:
-                api_key = "unknown"
-            if not limiter.allow(f"api:{api_key}", self.api_rate):
-                return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
-
-        return await call_next(request)
+def setup_rate_limiting(app):
+    """Alternative: attach rate limiting to the FastAPI application."""
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
