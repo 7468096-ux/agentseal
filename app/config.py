@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     rate_limit_register: str = "10/hour"
     rate_limit_api: str = "60/minute"
 
+    # GitHub OAuth
+    github_client_id: str | None = None
+    github_client_secret: str | None = None
+
     # Optional
     sentry_dsn: str | None = None
 

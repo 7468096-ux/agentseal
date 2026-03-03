@@ -19,6 +19,8 @@ class Agent(Base):
     owner_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     avatar_url: Mapped[str | None] = mapped_column(String(512))
     website_url: Mapped[str | None] = mapped_column(String(512))
+    github_username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    github_verified: Mapped[bool | None] = mapped_column(Boolean, nullable=True, server_default=text("false"))
     trust_score: Mapped[float | None] = mapped_column(Float)
     trust_tier: Mapped[str | None] = mapped_column(String(20))
     agent_metadata: Mapped[dict] = mapped_column("metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb"))

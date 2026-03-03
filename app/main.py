@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
 from app.middleware.auth import AuthMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
-from app.routers import agents, pages, seals, webhooks, certification, behaviour, claims
+from app.routers import agents, auth, pages, seals, webhooks, certification, behaviour, claims
 from app.models import (
     Agent,
     ApiKey,
@@ -38,11 +38,13 @@ app.add_middleware(RateLimitMiddleware)
 app.add_middleware(AuthMiddleware)
 
 app.include_router(agents.router)
+app.include_router(agents.trust_router)
 app.include_router(seals.router)
 app.include_router(webhooks.router)
 app.include_router(certification.router)
 app.include_router(behaviour.router)
 app.include_router(claims.router)
+app.include_router(auth.router)
 app.include_router(pages.router)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
