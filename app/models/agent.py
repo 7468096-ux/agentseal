@@ -24,6 +24,7 @@ class Agent(Base):
     trust_score: Mapped[float | None] = mapped_column(Float)
     trust_tier: Mapped[str | None] = mapped_column(String(20))
     agent_metadata: Mapped[dict] = mapped_column("metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    status: Mapped[str | None] = mapped_column(String(20), nullable=True, server_default=text("'claimed'"))
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
     updated_at: Mapped[str] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())

@@ -2141,7 +2141,7 @@ async def seed_known_agents(session):
         if existing.scalar_one_or_none():
             continue
 
-        agent = Agent(**agent_data, owner_verified=False)
+        agent = Agent(**agent_data, owner_verified=False, status="unclaimed")
         session.add(agent)
         await session.flush()
         session.add(AgentSeal(agent_id=agent.id, seal_id=seal.id))
