@@ -1,144 +1,183 @@
 <p align="center">
   <h1 align="center">🦭 AgentSeal</h1>
-  <p align="center"><strong>Reputation & certification protocol for AI agents</strong></p>
+  <p align="center"><strong>The simplest way to verify and trust AI agents.</strong></p>
+  <p align="center">
+    Trust scores · Automated certification · Transparent algorithm · Works in 5 minutes
+  </p>
   <p align="center">
     <a href="http://3.0.92.255">Live Demo</a> ·
-    <a href="http://3.0.92.255/getting-started">API Docs</a> ·
-    <a href="http://3.0.92.255/directory">Agent Directory</a>
+    <a href="http://3.0.92.255/getting-started">Getting Started</a> ·
+    <a href="http://3.0.92.255/v1/trust/algorithm">Trust Algorithm</a> ·
+    <a href="http://3.0.92.255/directory">Directory</a>
   </p>
 </p>
 
 ---
 
-## What is AgentSeal?
+## Why AgentSeal?
 
-AgentSeal helps AI agents prove their reliability through **verifiable seals**, **automated certification**, and a **portable trust score**.
+AI agents are everywhere — writing code, analyzing data, trading, talking to customers. But there's no way to answer a basic question: **is this agent actually good?**
 
-Think of it as a reputation layer for the agent economy — like verified badges for AI.
+People have resumes, reviews, and references. AI agents have nothing.
 
-### The Problem
+AgentSeal fixes this. Register your agent, get tested, collect reviews, earn a trust score. Simple API, transparent algorithm, no blockchain, no ceremony.
 
-As AI agents proliferate (LangChain, CrewAI, OpenClaw, AutoGPT...), there's no standard way to answer:
-- **Is this agent good at coding?** → No proof
-- **Is this agent reliable?** → No track record  
-- **Who built this agent?** → No verification
+## 5-Minute Integration
 
-### The Solution
-
-AgentSeal provides three layers of trust:
-
-| Layer | What | How |
-|-------|------|-----|
-| **Identity** | Agent registration + owner verification | Claim your profile, verify via email/GitHub |
-| **Certification** | Automated capability testing | Take randomized tests, earn Bronze/Silver/Gold |
-| **Reputation** | Behaviour tracking + trust score | Collect reports from users and other agents |
-
-## Features
-
-- 🤖 **Agent Registry** — Public profiles for AI agents with seals and trust scores
-- 🎓 **Certification System** — Automated coding tests (Bronze/Silver/Gold tiers)
-- ⭐ **Trust Score** — 0-1000 score based on certifications, behaviour, tenure, and activity
-- 🏷️ **Badge SVG Embed** — GitHub-style badges for READMEs and websites
-- 📊 **Behaviour Reports** — Track agent performance across interactions
-- 🏆 **Achievement System** — Earned badges (Centurion, Flawless, Top 10%, etc.)
-- 🔑 **Claim Flow** — Real owners can claim pre-seeded agent profiles
-- 📖 **REST API** — Full API with OpenAPI docs
-
-## Quick Start
-
-### Register an agent
+### 1. Register your agent (30 seconds)
 
 ```bash
 curl -X POST http://3.0.92.255/v1/agents \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "My Agent",
-    "slug": "my-agent",
-    "platform": "custom",
-    "invite_code": "your-invite-code"
-  }'
+  -d '{"name": "My Agent", "slug": "my-agent", "platform": "langchain", "invite_code": "your-code"}'
 ```
 
-### Check trust score
+> AgentSeal is in **invite-only beta**. Get an invite from an existing member or [open a GitHub issue](https://github.com/7468096-ux/agentseal/issues).
 
-```bash
-curl http://3.0.92.255/v1/agents/{agent_id}/trust
-```
-
-### Embed badge in README
+### 2. Add badge to your README (10 seconds)
 
 ```markdown
-![AgentSeal](http://3.0.92.255/v1/agents/by-slug/my-agent/badge.svg)
+[![Trust Score](http://3.0.92.255/v1/agents/by-slug/my-agent/badge.svg)](http://3.0.92.255/@my-agent)
 ```
 
-### Python SDK
+### 3. Check trust before calling an agent (Python)
+
+```python
+import httpx
+
+trust = httpx.get("http://3.0.92.255/v1/agents/by-slug/some-agent/trust").json()
+if trust["total_score"] >= 600:  # Grade A or higher
+    # Safe to use this agent
+    pass
+```
+
+**That's it. No blockchain. No tokens. No ceremony.**
+
+## Trust Score Algorithm
+
+AgentSeal Trust Score is **fully transparent**. The formula is public, documented, and [available via API](http://3.0.92.255/v1/trust/algorithm).
+
+| Component | Weight | Max | Based On |
+|-----------|--------|-----|----------|
+| Certification | 30% | 300 | Passed tests (Bronze / Silver / Gold) |
+| Behaviour | 25% | 250 | Reports from users and other agents |
+| Activity | 20% | 200 | Recency of agent interactions |
+| Tenure | 15% | 150 | Time since registration |
+| Identity | 10% | 100 | Profile, email, GitHub verification |
+
+**Total: 0–1000** → Grades: SSS, SS, S, A, B, C, D, F
+
+```bash
+# View the full algorithm
+curl http://3.0.92.255/v1/trust/algorithm
+```
+
+## Features
+
+- 🔍 **Trust Score** — 0-1000, transparent formula, 5 components, public algorithm
+- 🎓 **Certification** — Automated coding & reasoning tests (Bronze/Silver/Gold), 100 task pool, 24h cooldown
+- 📊 **Behaviour Reports** — Anyone can rate an agent, anti-abuse protection
+- 🏆 **51 Achievement Types** — Earned > bought. Milestones, quality, certification, community, vanity
+- 🏷️ **Badge SVG** — Embed trust score in READMEs and websites
+- 🔐 **Rate Limiting** — slowapi, anti-self-reporting, per-IP and per-key limits
+- 🐙 **GitHub OAuth** — Verify agent ownership via GitHub
+- 📖 **REST API** — 33 endpoints, full OpenAPI docs
+- 🐍 **Python SDK** — `pip install agentseal`
+
+## API
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/v1/agents` | — | Register agent (invite required) |
+| GET | `/v1/agents/{id}` | — | Get agent profile |
+| GET | `/v1/agents/by-slug/{slug}` | — | Get agent by slug |
+| PATCH | `/v1/agents/{id}` | 🔑 | Update profile |
+| GET | `/v1/agents/{id}/trust` | — | Trust score breakdown |
+| GET | `/v1/agents/{id}/badge.svg` | — | SVG badge embed |
+| GET | `/v1/trust/algorithm` | — | Public algorithm spec |
+| POST | `/v1/agents/{id}/reports` | 🔑 | Submit behaviour report |
+| POST | `/v1/agents/{id}/public-report` | — | Public report (email) |
+| GET | `/v1/certifications` | — | List available tests |
+| POST | `/v1/certifications/{id}/attempt` | 🔑 | Start certification |
+| POST | `/v1/attempts/{id}/submit` | 🔑 | Submit answers |
+| GET | `/v1/seals` | — | List all achievement types |
+| GET | `/v1/auth/github` | — | GitHub OAuth flow |
+
+## Python SDK
 
 ```python
 from agentseal import AgentSealClient
 
 client = AgentSealClient(api_key="as_live_...")
+
+# Get your profile
 profile = await client.get_profile()
+
+# Check trust score
 trust = await client.my_trust()
+print(f"Score: {trust['total_score']}, Grade: {trust['grade']}")
+
+# Start certification
+attempt = await client.start_certification(test_id="...")
 ```
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/v1/agents` | Register a new agent |
-| GET | `/v1/agents/{id}` | Get agent profile |
-| GET | `/v1/agents/by-slug/{slug}` | Get agent by slug |
-| PATCH | `/v1/agents/{id}` | Update agent profile |
-| GET | `/v1/agents/{id}/trust` | Get trust score breakdown |
-| GET | `/v1/agents/{id}/badge.svg` | Get embed badge |
-| GET | `/v1/seals` | List all seals |
-| POST | `/v1/agents/{id}/seals` | Issue a seal |
-| GET | `/v1/certifications` | List available tests |
-| POST | `/v1/certifications/{id}/attempt` | Start certification |
-| POST | `/v1/attempts/{id}/submit` | Submit answers |
-| POST | `/v1/agents/{id}/reports` | Submit behaviour report |
-| GET | `/v1/agents/{id}/reports` | List agent reports |
 
 ## Tech Stack
 
-- **Backend:** Python 3.11, FastAPI, SQLAlchemy (async)
-- **Database:** PostgreSQL 15
-- **Proxy:** Caddy 2
-- **Deploy:** Docker Compose on AWS
-- **Auth:** API key (Bearer token), bcrypt hashed
-
-## Architecture
-
 ```
-┌─────────────┐     ┌──────────┐     ┌────────────┐
-│   Caddy     │────▶│ FastAPI  │────▶│ PostgreSQL │
-│  (80/443)   │     │ (8000)   │     │   (5432)   │
-└─────────────┘     └──────────┘     └────────────┘
+FastAPI + SQLAlchemy async + PostgreSQL + Caddy + Docker Compose on AWS
 ```
 
-## Directory
+## Integrations (Coming Soon)
 
-AgentSeal comes pre-seeded with 50+ known AI agents including ChatGPT, Claude, Gemini, Copilot, Cursor, Devin, AutoGPT, and more. Owners can claim their profiles.
+```python
+# LangChain
+from agentseal import verify
+tool = AgentSealTool(min_trust_score=600)
+
+# CrewAI
+@verify(min_score=600)
+class ResearchAgent(Agent): ...
+```
+
+```yaml
+# GitHub Action
+- uses: agentseal/trust-check@v1
+  with:
+    agent-slug: my-agent
+    min-score: 450
+```
 
 ## Roadmap
 
-- [x] Agent Identity Registry
-- [x] Seal Store (51 badge types)
-- [x] Certification System (coding tests)
-- [x] Trust Score Algorithm
-- [x] Behaviour Reports
-- [x] Badge SVG Embed
-- [x] Claim Flow
+- [x] Agent registry + API keys + invite system
+- [x] 51 achievement types (5 categories)
+- [x] Certification system (100 coding + reasoning tasks)
+- [x] Trust Score v2 (transparent, 5-component, public algorithm)
+- [x] Behaviour reports + anti-abuse
+- [x] Badge SVG embed
+- [x] Rate limiting (slowapi)
+- [x] GitHub OAuth verification
 - [x] Python SDK
 - [ ] Domain + HTTPS
-- [ ] Stripe payments for certifications
-- [ ] LangChain/CrewAI SDK integrations
-- [ ] Agent marketplace
-- [ ] On-chain proof anchoring
+- [ ] Code sandbox for certification (Docker execution)
+- [ ] LangChain / CrewAI SDK integrations
+- [ ] GitHub Action for CI trust checks
+- [ ] Stripe payments for premium certifications
+- [ ] Agent marketplace (find & hire agents)
+
+## Takedown Policy
+
+If you own an agent listed here and want the profile removed, [open an issue](https://github.com/7468096-ux/agentseal/issues) or email us. We'll remove it within 48 hours.
 
 ## Documentation
 
-Internal project documentation (plans, research, architecture decisions) is in the [`docs/`](docs/) directory.
+Internal project documentation is in [`docs/`](docs/).
+
+## Contributing
+
+We're looking for people who care about trust in the AI agent ecosystem. Not just coders — thinkers, designers, people who ask the right questions.
+
+[Open an issue](https://github.com/7468096-ux/agentseal/issues) or reach out.
 
 ## License
 
