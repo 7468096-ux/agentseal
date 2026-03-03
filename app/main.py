@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 from app.middleware.auth import AuthMiddleware
-from app.middleware.rate_limit import RateLimitMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware, limiter
 from app.routers import agents, auth, pages, seals, webhooks, certification, behaviour, claims
 from app.models import (
     Agent,
@@ -34,6 +34,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.state.limiter = limiter
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(AuthMiddleware)
 
