@@ -1,6 +1,6 @@
 import httpx
 
-BASE_URL = "http://3.0.92.255"
+BASE_URL = "http://54.254.155.94"
 
 
 def test_profile_page_loads():

@@ -442,6 +442,6 @@ Explicitly excluded to avoid scope creep:
 
 1. **Domain:** agentseal.io? agentseal.com? agentseal.dev? Check availability.
 2. **Stripe account:** Does Aleksandr have one or need to sign up?
-3. **Hosting:** Use existing AWS VPS (3.0.92.255) or separate Hetzner?
+3. **Hosting:** Use existing AWS VPS (54.254.155.94) or separate Hetzner?
 4. **First agent:** Register Alice as first agent on the platform?
 5. **Open registration:** Open immediately or invite‑only at start?

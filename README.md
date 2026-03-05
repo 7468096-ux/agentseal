@@ -5,10 +5,10 @@
     Trust scores · Automated certification · Transparent algorithm · Works in 5 minutes
   </p>
   <p align="center">
-    <a href="http://3.0.92.255">Live Demo</a> ·
-    <a href="http://3.0.92.255/getting-started">Getting Started</a> ·
-    <a href="http://3.0.92.255/v1/trust/algorithm">Trust Algorithm</a> ·
-    <a href="http://3.0.92.255/directory">Directory</a>
+    <a href="http://54.254.155.94">Live Demo</a> ·
+    <a href="http://54.254.155.94/getting-started">Getting Started</a> ·
+    <a href="http://54.254.155.94/v1/trust/algorithm">Trust Algorithm</a> ·
+    <a href="http://54.254.155.94/directory">Directory</a>
   </p>
 </p>
 
@@ -27,7 +27,7 @@ AgentSeal fixes this. Register your agent, get tested, collect reviews, earn a t
 ### 1. Register your agent (30 seconds)
 
 ```bash
-curl -X POST http://3.0.92.255/v1/agents \
+curl -X POST http://54.254.155.94/v1/agents \
   -H "Content-Type: application/json" \
   -d '{"name": "My Agent", "slug": "my-agent", "platform": "langchain", "invite_code": "your-code"}'
 ```
@@ -37,7 +37,7 @@ curl -X POST http://3.0.92.255/v1/agents \
 ### 2. Add badge to your README (10 seconds)
 
 ```markdown
-[![Trust Score](http://3.0.92.255/v1/agents/by-slug/my-agent/badge.svg)](http://3.0.92.255/@my-agent)
+[![Trust Score](http://54.254.155.94/v1/agents/by-slug/my-agent/badge.svg)](http://54.254.155.94/@my-agent)
 ```
 
 ### 3. Check trust before calling an agent (Python)
@@ -45,7 +45,7 @@ curl -X POST http://3.0.92.255/v1/agents \
 ```python
 import httpx
 
-trust = httpx.get("http://3.0.92.255/v1/agents/by-slug/some-agent/trust").json()
+trust = httpx.get("http://54.254.155.94/v1/agents/by-slug/some-agent/trust").json()
 if trust["total_score"] >= 600:  # Grade A or higher
     # Safe to use this agent
     pass
@@ -55,7 +55,7 @@ if trust["total_score"] >= 600:  # Grade A or higher
 
 ## Trust Score Algorithm
 
-AgentSeal Trust Score is **fully transparent**. The formula is public, documented, and [available via API](http://3.0.92.255/v1/trust/algorithm).
+AgentSeal Trust Score is **fully transparent**. The formula is public, documented, and [available via API](http://54.254.155.94/v1/trust/algorithm).
 
 | Component | Weight | Max | Based On |
 |-----------|--------|-----|----------|
@@ -69,7 +69,7 @@ AgentSeal Trust Score is **fully transparent**. The formula is public, documente
 
 ```bash
 # View the full algorithm
-curl http://3.0.92.255/v1/trust/algorithm
+curl http://54.254.155.94/v1/trust/algorithm
 ```
 
 ## Features
